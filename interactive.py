@@ -74,19 +74,20 @@ def main():
             case ActionsCode._NEW_NODE_ACTION:
                 new_node_answers = prompt(_NEW_NODE_QUESTIONS)
                 start_amount = 0 if new_node_answers.get(_NEW_NODE_START_AMOUNT) == '' \
-                    else int (new_node_answers.get(_NEW_NODE_START_AMOUNT))
+                    else int(new_node_answers.get(_NEW_NODE_START_AMOUNT))
                 new_node_obj = money_graph.create_node(
                     new_node_answers.get(_NEW_NODE_NAME),
                     start_amount)
                 print(new_node_obj)
             case ActionsCode._NEW_EDGE_ACTION:
                 new_edge_answers = prompt(_NEW_EDGE_QUESTIONS)
+                edge_amount = 0 if new_node_answers.get(_NEW_NODE_START_AMOUNT) == '' \
+                    else int(new_node_answers.get(_NEW_NODE_START_AMOUNT))
                 try:
                     new_edge = money_graph.create_edge(
                         new_edge_answers.get(_NEW_EDGE_SOURCE),
                         new_edge_answers.get(_NEW_EDGE_TARGET),
-                        new_edge_answers.get(_NEW_EDGE_AMOUNT)
-                    )
+                        edge_amount)
                     print(new_edge)
                 except AssertionError as error:
                     print('Edge cannot be added')

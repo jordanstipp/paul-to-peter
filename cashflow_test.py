@@ -31,9 +31,8 @@ class TestSum(unittest.TestCase):
             self.graph.create_edge(
                 _PERSON_NODE_NAME, _EXPENSES_NODE_NAME, _EXPENSE_AMOUNT)
         except:
-            pass
-        else:
-            self.fail('No exception was raised.')
+            self.fail('Exception was raised instead of an edge being added.')
+
 
     def test_add_edge_success(self):
         person_node = self.graph.create_node(_PERSON_NODE_NAME)
@@ -50,12 +49,16 @@ class TestSum(unittest.TestCase):
         person_node = self.graph.create_node(_PERSON_NODE_NAME)
         income_node = self.graph.create_node(_INCOME_NODE_NAME, start_amount=_INCOME_AMOUNT)
         income2_node = self.graph.create_node('another one', start_amount=_INCOME_AMOUNT)
+        expense_node = self.graph.create_node(_EXPENSES_NODE_NAME, start_amount=0)
         self.graph.create_edge(
             _INCOME_NODE_NAME, _PERSON_NODE_NAME, _INCOME_AMOUNT)
         self.graph.create_edge(
             'another one', _PERSON_NODE_NAME, _INCOME_AMOUNT)
+        self.graph.create_edge(
+            _PERSON_NODE_NAME, _EXPENSES_NODE_NAME, _EXPENSE_AMOUNT)
         edges = self.graph.get_inflows(_PERSON_NODE_NAME)
-        print(person_node._print_edges(edges, inflow_bool=False))
+        print('\n')
+        print(person_node)
 
 if __name__ == '__main__':
     unittest.main()
