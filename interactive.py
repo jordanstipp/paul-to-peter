@@ -65,8 +65,8 @@ _EXPLORE_NODE_QUESTIONS = [
     }
 ]
 
-def main():
-    money_graph = PeToPi()
+def console_interact_with_graph(graph):
+    """Terminal based interaction with a money graph."""
     while True:
         action_answers = prompt(_ACTIONS_QUESTION)
         action_chosen = action_answers.get(_ACTION_PROMPT)
@@ -75,7 +75,7 @@ def main():
                 new_node_answers = prompt(_NEW_NODE_QUESTIONS)
                 start_amount = 0 if new_node_answers.get(_NEW_NODE_START_AMOUNT) == '' \
                     else int(new_node_answers.get(_NEW_NODE_START_AMOUNT))
-                new_node_obj = money_graph.create_node(
+                new_node_obj = graph.create_node(
                     new_node_answers.get(_NEW_NODE_NAME),
                     start_amount)
                 print(new_node_obj)
@@ -84,7 +84,7 @@ def main():
                 edge_amount = 0 if new_node_answers.get(_NEW_NODE_START_AMOUNT) == '' \
                     else int(new_node_answers.get(_NEW_NODE_START_AMOUNT))
                 try:
-                    new_edge = money_graph.create_edge(
+                    new_edge = graph.create_edge(
                         new_edge_answers.get(_NEW_EDGE_SOURCE),
                         new_edge_answers.get(_NEW_EDGE_TARGET),
                         edge_amount)
@@ -94,13 +94,22 @@ def main():
                     print(error)
             case ActionsCode._PRINT_NODE:
                 get_node_answers = prompt(_EXPLORE_NODE_QUESTIONS)
-                node =  money_graph.get_node(
+                node =  graph.get_node(
                     get_node_answers.get(_NODE_NAME)
                 )
                 print(node)
 
             case ActionsCode._QUIT_ACTION:
                 break
+
+def main():
+    """Start anew with a fresh graph.
+
+    Only supports terminal console based interactions at this point.
+    """
+    new_graph = PeToPi()
+    console_interact_with_graph(new_graph)
+
 
 
 if __name__ == "__main__":
