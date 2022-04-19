@@ -1,4 +1,4 @@
-from cashflow_node import PeToPi
+from cash_graph import CashGraph
 import unittest
 
 _PERSON_NODE_NAME = 'unittest_person'
@@ -11,7 +11,7 @@ _DIFFERENTIAL_AMOUNT= _INCOME_AMOUNT- _EXPENSE_AMOUNT
 class TestSum(unittest.TestCase):
 
     def setUp(self):
-        self.graph = PeToPi()
+        self.graph = CashGraph()
 
     def test_graph_creation(self):
         self.assertFalse(self.graph.edges_source_index)

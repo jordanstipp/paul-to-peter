@@ -1,5 +1,5 @@
 from PyInquirer import prompt
-from cashflow_node import PeToPi
+from cash_graph import CashGraph
 
 
 _ACTION_PROMPT = ''
@@ -8,6 +8,7 @@ class ActionsCode:
     _NEW_EDGE_ACTION = 'New Edge'
     _PRINT_NODE = 'Explore Node'
     _QUIT_ACTION = 'Quit'
+
 _ACTIONS_QUESTION = [
     {
         'type': 'list',
@@ -65,7 +66,7 @@ _EXPLORE_NODE_QUESTIONS = [
     }
 ]
 
-def console_interact_with_graph(graph):
+def console_interact_with_graph(graph: CashGraph):
     """Terminal based interaction with a money graph."""
     while True:
         action_answers = prompt(_ACTIONS_QUESTION)
@@ -107,7 +108,7 @@ def main():
 
     Only supports terminal console based interactions at this point.
     """
-    new_graph = PeToPi()
+    new_graph = CashGraph()
     console_interact_with_graph(new_graph)
 
 
