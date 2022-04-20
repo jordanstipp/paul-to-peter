@@ -1,5 +1,5 @@
 from collections import defaultdict
-from node import CashFlowNode
+from node import CashFlowNode, NodeCategories
 from edge import CashFlowEdge
 
 class CashGraph:
@@ -8,9 +8,12 @@ class CashGraph:
         self.edges_target_index = defaultdict(list)
         self.nodes = {}
 
-    def create_node(self, name, start_amount=0):
+    # TODO(mekhi) Deprecate in the future for an add_node method instead.
+    # Prefer the user to create and node directly instead of indirect.
+    # Needs an overall refactor to maintain that the graph is still linked to the node.
+    def create_node(self, name, start_amount=0, node_type=NodeCategories.OTHER):
         """Adds a new participant to the cash flow graph."""
-        new_node = CashFlowNode(name, self, start_amount)
+        new_node = CashFlowNode(name, self, node_type, start_amount)
         self.nodes[name] = new_node
         return new_node
 

@@ -1,12 +1,26 @@
+from collections import namedtuple
+from enum import Enum
 import math
+
+component = namedtuple('component', 'name allocation')
+
+class NodeCategories(Enum):
+    PERSONAL = 1
+    INVESTMENTS = 2
+    EXPENSES = 3
+    SAVINGS = 4
+    OTHER = 5
 
 class CashFlowNode:
     """Base class that represents a node (i.e. person, account, entity.)"""
-    def __init__(self, account_name, graph, start_amount=0):
+    def __init__(self, account_name, graph, node_type, start_amount=0):
         self.name = account_name
         self.history = []   # Feature not implemented
         self.parent_graph = graph
         self.start_amount = start_amount
+        self.internal_allocations = {}
+        self.type = node_type
+        
 
     def get_income(self):
         incoming_cashflows = self.parent_graph.get_inflows(self.name)
@@ -55,6 +69,29 @@ class CashFlowNode:
             return edges_name_str + '\n' + edge_arrow_str + arrow_line_str
         return edge_arrow_str + arrow_line_str + '\n' + edges_name_str
 
+    def add_internal_allocation(self, name, amount):
+        """Adds to a list of internal allocations of cash.
+        This is used in situations where it doesn't warrant an entirely new node.
+        
+        Example: 'Bitcoin' allocation in an 'Investing' Node
+        """
+        self.internal_allocations[name] = component(name, amount)
+        print(f'Added internal component {name} of {amount}')
+    
+    def get_internal_allocations(self):
+        """Get the list of all internal allocation."""
+        print(f'Allocations on node {self.name}')
+        for component in self.internal_allocations.values():
+            print(f'\t{component.name} : {component.allocation}')
+    
+    def change_internal_allocation(self, name, new_amount):
+        """Modify an existing allocation"""
+        if name not in self.internal_allocations:
+            print(f'Value {name} not in internal component list')
+            return
+        self.internal_allocations[name] = component(name, new_amount)
+
+    
     def __str__(self):
         income = self.get_income()
         expenses = self.get_expenses()

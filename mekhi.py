@@ -1,15 +1,16 @@
-from cashflow_node import PeToPi
+from cash_graph import CashGraph
+from node import NodeCategories
 from collections import namedtuple
 from interactive import console_interact_with_graph
 
 _MONTHS_IN_YEAR = 12
-cached_account = namedtuple('cached_account', 'name monthly_amount')
+cached_allocation = namedtuple('cached_allocation', 'name monthly_amount')
+
 
 class Profile():
-
     def __init__(self, name):
         """Creates a the graph object to represent a person."""
-        self.graph = PeToPi()
+        self.graph = CashGraph()
         self.me = name
         self.setupProfile()
 
@@ -22,33 +23,44 @@ class Profile():
         self.graph.create_node(name=employer_name, start_amount=1000000)
         self.graph.create_edge(employer_name, self.me, amount=salary)
         # Investments
-        investing = [
-            cached_account('Vanguard Retirement', 500),
-            cached_account('Speculative - Stock Market', 200),
-            cached_account('Crypto Holdings', 600),
-            cached_account('MMAD Holdings', 700)
+        investing_node = self.graph.create_node(name='Investments', node_type=NodeCategories.INVESTMENTS)
+        investing_allocations = [
+            cached_allocation('Vanguard Retirement', 500),
+            cached_allocation('Speculative - Stock Market', 200),
+            cached_allocation('Crypto Holdings', 600),
+            cached_allocation('MMAD Holdings', 700)
         ]
-        self.add_grouping_to_graph(investing)
+        self.add_grouping_to_graph(investing_node, investing_allocations)
         # Savings
-        savings = [
-            cached_account('Emergency Savings', 600),
-            cached_account('Motorcyle', 200)
+        savings_node = self.graph.create_node(name='Savings', node_type=NodeCategories.SAVINGS)
+        savings_allocations = [
+            cached_allocation('Emergency Savings', 600),
+            cached_allocation('Motorcyle', 200)
         ]
-        self.add_grouping_to_graph(savings)
+        self.add_grouping_to_graph(savings_node, savings_allocations)
         # Expenses
-        expenses = [
-            cached_account('Subscriptions', 200),
-            cached_account('Constant Bills', 200)
+        subscriptions_node = self.graph.create_node(name='Subscriptions', node_type=NodeCategories.EXPENSES)
+        subscriptions = [
+            cached_allocation('Disney+', 8),
+            cached_allocation('Netflix', 12),
+            cached_allocation('LifeLock', 20)
         ]
-        self.add_grouping_to_graph(expenses)
+        self.add_grouping_to_graph(subscriptions_node, subscriptions)
+
+        constant_expenses = self.graph.create_node(name='Constant Bills', node_type=NodeCategories.EXPENSES)
+        bills = [
+            cached_allocation('PG&E', 500),
+            cached_allocation('Rent', 1750),
+            cached_allocation('Parking', 150),
+        ]
+        self.add_grouping_to_graph(constant_expenses, bills)
 
 
-    def add_grouping_to_graph(self, edge_groupings):
+    def add_grouping_to_graph(self, parent_node, cached_allocations):
         """Creates the nodes and edges in graph from the cached results."""
-        for edge_group in edge_groupings:
-            self.graph.create_node(name=edge_group.name)
-            self.graph.create_edge(
-                self.me, edge_group.name, amount=edge_group.monthly_amount * _MONTHS_IN_YEAR)
+        for allocation in cached_allocations:
+            parent_node.add_internal_allocation(
+                allocation.name, amount=allocation.monthly_amount * _MONTHS_IN_YEAR)
 
 
 

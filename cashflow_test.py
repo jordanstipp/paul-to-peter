@@ -3,9 +3,11 @@ import unittest
 
 _PERSON_NODE_NAME = 'unittest_person'
 _EXPENSES_NODE_NAME = 'unittest_expenses'
+_INVESTMENT_NODE_NAME = 'unittest_investments'
 _INCOME_NODE_NAME = 'unittest_income'
 _INCOME_AMOUNT = 100
 _EXPENSE_AMOUNT = 50
+_INVESTMENT_AMOUNT = 5000
 _DIFFERENTIAL_AMOUNT= _INCOME_AMOUNT- _EXPENSE_AMOUNT
 
 class TestSum(unittest.TestCase):
@@ -59,6 +61,15 @@ class TestSum(unittest.TestCase):
         edges = self.graph.get_inflows(_PERSON_NODE_NAME)
         print('\n')
         print(person_node)
+    
+    def test_allocation_on_node(self):
+        investing_node = self.graph.create_node(_INVESTMENT_NODE_NAME, start_amount=_INVESTMENT_AMOUNT)
+        investing_node.add_internal_allocation('Bitcoin', 200)
+        self.assertEqual(1, len(investing_node.internal_allocations))
+        investing_node.get_internal_allocations()
+
+
+        
 
 if __name__ == '__main__':
     unittest.main()
