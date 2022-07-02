@@ -3,6 +3,13 @@ import './App.css';
 import { ForceGraph2D, ForceGraph3D, ForceGraphVR, ForceGraphAR } from 'react-force-graph';
 import React, { useState, useEffect } from 'react';
 import globalGraph from './cash_graph/main.js';
+import Card from '@mui/material/Card';
+import { CardContent } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import CardActions from '@mui/material/CardActions';
+
+
 
 function get_displayable_nodes(nodes){
   console.log(nodes);
@@ -31,39 +38,94 @@ function get_displayable_edges(edges){
   return graph_edges;
 }
 
-function get_graph() {
-  let mydata = { 
-    "nodes": get_displayable_nodes(globalGraph.get_nodes()),
-    "links": get_displayable_edges(globalGraph.get_edges())
-  }
-  return mydata;
-}
-
+const { useRef } = React;
 
 function App() {
   const [data, setData] = useState({});
+  const [focusNode, setFocusNode] = useState({});
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     var dataset = get_graph();
     setData(dataset);
     setLoading(false);
+    console.log(data);
   }, []);
 
+  function get_graph() {
+    let nodes = globalGraph.get_nodes();
+    let mydata = { 
+      "nodes": get_displayable_nodes(nodes),
+      "links": get_displayable_edges(globalGraph.get_edges())
+    };
+    setFocusNode(nodes[0]);
+    console.log(nodes[0]);
+    return mydata;
+  }
+
   function handleClick(node) {
+    // When Nodes are clicked set the focus node to the chose.
     console.log(node);
+    let id = node.id;
+    setFocusNode(globalGraph.get_node(id));
   };
+
+  const NodeFocusForm = () => {
+    return <>
+      <Card variant="outlined" sx={{maxWidth: 400, maxHeight: 200, alignContent: "center"}}>
+        <CardContent>
+          <Typography variant="h9" gutterBottom>
+            Type: {focusNode.type}
+          </Typography>
+          <Typography variant="h3">
+            {focusNode.name}
+          </Typography> 
+          <Typography variant="h5">
+            Current balance: ${focusNode.current_balance}
+          </Typography>       
+        </CardContent>
+        <CardActions>
+          <Button size="small">Inspect Node</Button>
+      </CardActions>
+      </Card>
+    </>
+  }
+
+  const Graph = () => {
+    const fgRef = useRef();
+    return <ForceGraph2D
+          graphData={data}
+          ref={fgRef}
+          onNodeClick={handleClick}
+          onEngineStop={() => fgRef.current.zoomToFit(400)}
+        /> 
+  }
 
   if (isLoading) {
     return <div className="App">Loading..</div>
   }
   return (
     <>
-      <ForceGraph2D
-        graphData= {data}
-        onNodeClick={handleClick}
-      /> 
+    <h1>Welcome to your financial health</h1>
+    <div className="dev-area">
+      <div className="info-side workbench">
+        <NodeFocusForm />
+      </div>
+      <div className="graph-side workbench">
+        <Graph />
+      </div>
+    </div>
+    <div className="inspect-area">
+      <h1>Inspection Area</h1>
+      <div className='interactive-inspection'>
+        <h2>Interactive</h2>
+      </div>
+      <div className='display-inspection'>
+        <h2>Informational</h2>
+      </div>
+    </div>
     </>
+
   );
   
 }
@@ -94,7 +156,6 @@ function get_dataset(){
 		value: 200
 	}]
   }
-  // return fetch(test_dataset).then(res => res.json())
 }
 
 function genRandomTree(N = 300, reverse = false) {
@@ -107,17 +168,6 @@ function genRandomTree(N = 300, reverse = false) {
       [reverse ? 'source' : 'target']: Math.round(Math.random() * (id-1))
     }))
   };
-}
-
-var data_1 = {
-  "nodes": [
-      {id: "Myriel", group: 1},
-      {id: "Napoleon", group: 1},
-  ],
-  "links": [
-    {source: "Napoleon", target: "Myriel", value: 1},
-
-  ]
 }
 
 */

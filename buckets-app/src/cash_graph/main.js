@@ -2,24 +2,36 @@ const default_user_id = 'DefaultUser';
 
 class Graph {
     constructor() {
-        this.nodes = [];
-        this.edges = [];
+        this.nodes = {};
+        this.edges = {};
     }
 
     get_nodes() {
-        return this.nodes;
+        let raw_nodes = [];
+        for (let node_id in this.nodes) {
+            raw_nodes.push(this.nodes[node_id]);
+        }
+        return raw_nodes;
+    }
+    
+    get_node(node_id) {
+        return this.nodes[node_id];
     }
 
     add_node(node) {
-        this.nodes.push(node);
+        this.nodes[node.id] = node;
     }
 
     get_edges() {
-        return this.edges;
+        let raw_edges = [];
+        for (let edge_id in this.edges){
+            raw_edges.push(this.edges[edge_id]);
+        }
+        return raw_edges;
     }
 
     add_edge(edge) {
-        this.edges.push(edge);
+        this.edges[edge.id] = edge;
     }
 };
 let globalGraph = new Graph();
