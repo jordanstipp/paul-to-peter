@@ -1,9 +1,76 @@
 import logo from './logo.svg';
 import './App.css';
-import { ForceGraph2D } from 'react-force-graph';
+import { ForceGraph2D, ForceGraph3D, ForceGraphVR, ForceGraphAR } from 'react-force-graph';
 import React, { useState, useEffect } from 'react';
+import globalGraph from './cash_graph/main.js';
+
+function get_displayable_nodes(nodes){
+  console.log(nodes);
+  let graph_nodes = []
+  nodes.forEach(node=> {
+    graph_nodes.push({
+      'id': node.id,
+      'group': 1
+    })
+  })
+  console.log(graph_nodes);
+  return graph_nodes;
+}
+
+function get_displayable_edges(edges){
+  console.log(edges);
+  let graph_edges = []
+  edges.forEach(edge=> {
+    graph_edges.push({
+      source: edge.source_id,
+      target: edge.dest_id,
+      value: edge.amount
+    })
+  })
+  console.log(graph_edges);
+  return graph_edges;
+}
+
+function get_graph() {
+  let mydata = { 
+    "nodes": get_displayable_nodes(globalGraph.get_nodes()),
+    "links": get_displayable_edges(globalGraph.get_edges())
+  }
+  return mydata;
+}
 
 
+function App() {
+  const [data, setData] = useState({});
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    var dataset = get_graph();
+    setData(dataset);
+    setLoading(false);
+  }, []);
+
+  function handleClick(node) {
+    console.log(node);
+  };
+
+  if (isLoading) {
+    return <div className="App">Loading..</div>
+  }
+  return (
+    <>
+      <ForceGraph2D
+        graphData= {data}
+        onNodeClick={handleClick}
+      /> 
+    </>
+  );
+  
+}
+
+export default App;
+
+/*
 const test_dataset = '../../cashflow_graph/datasets/brokeboy.json'
 
 function get_dataset(){
@@ -53,28 +120,4 @@ var data_1 = {
   ]
 }
 
-function App() {
-  const [data, setData] = useState({});
-  const [isLoading, setLoading] = useState(true);
-
-  useEffect(() => {
-    var dataset = get_dataset();
-    console.log(dataset);
-    setData(dataset);
-    setLoading(false);
-  }, []);
-
-  if (isLoading) {
-    return <div className="App">Loading..</div>
-  }
-  return (
-    <>
-    <ForceGraph2D
-          graphData={data}
-        />
-    </>
-  );
-  
-}
-
-export default App;
+*/
