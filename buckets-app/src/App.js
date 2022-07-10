@@ -8,6 +8,13 @@ import { CardContent } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
+import Popup from 'reactjs-popup';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+
 
 
 
@@ -84,6 +91,7 @@ function App() {
     </>
   }
 
+  {/* TODO(mjones): Toggle between node detail view and the graph */}
   const Graph = () => {
     const fgRef = useRef();
     return <ForceGraph2D
@@ -96,9 +104,18 @@ function App() {
 
   const NodeDetail = () => {
     let incoming_edges = globalGraph.get_incoming_edges(focusNode);
-    let income = 500;
+    let income = 0
+    incoming_edges.forEach(edge => {
+      console.log(edge);
+      income += edge.amount;
+    })
+
     let outgoing_edges  = globalGraph.get_outgoing_edges(focusNode);
-    let expenses = 200;
+    let expenses = 0;
+    outgoing_edges.forEach(edge => {
+      console.log(edge);
+      expenses += edge.amount;
+    })
 
     const BudgetItem = (edges, incoming=false) => {
       edges = edges.edges
@@ -115,14 +132,58 @@ function App() {
         </div>
       );
     }
+
+    const InputEdgeForm = () => {
+      console.log(data.nodes);
+      const [amount, setAmount] = useState();
+      const handleNewEdgeAmountChange = event => {
+        setAmount(event.target.value);
+        console.log('value is:', event.target.value);
+      };
+
+      const [targetNode, setTarget] = useState();
+      const handleTargetNodeChange =  event => {
+        setTarget(event.target.value);
+        console.log('target is : ' + event.target.value);
+      };
+
+      function newEdge () {
+        console.log(amount + ' being added to edge to ' + targetNode);
+      };
+
+      return(
+        <div>
+          <h4>New Edge</h4>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={data.nodes[0].id}
+            label="Income Edge"
+            onChange={handleTargetNodeChange}
+          >
+            {
+              Object.keys(data.nodes).map((key, i) => {
+                const val = data.nodes[key].id
+                return (
+                  <MenuItem key={val} value={val}>{val}</MenuItem>
+                )
+              })
+            }
+          </Select>
+          <TextField variant="outlined" onChange={handleNewEdgeAmountChange}>
+            Amount
+          </TextField>
+          <Button variant="contained" onClick={()=>newEdge()}>Submit</Button>
+        </div>
+    )}
     return (
       <div>
         <h1>{focusNode.name}</h1><br/>
         <h4><i>Accounts Attached : 1</i></h4>
         <ul>
-          <li>Balance: {focusNode.current_balance}</li>
-          <li>Income: {income}</li>
-          <li>Expenses: {expenses}</li>
+          <li>Balance: ${focusNode.current_balance}</li>
+          <li>Income: ${income}</li>
+          <li>Expenses: ${expenses}</li>
         </ul>
         <h2>Budget</h2>
         <div className='budget-view-box'>
@@ -131,14 +192,21 @@ function App() {
             <ul>
             <BudgetItem edges={incoming_edges}/>
             </ul>
+            <ul>
+              
+            </ul>
+            <Popup trigger={<button> Add edge</button>} position="right center">
+              <InputEdgeForm />
+            </Popup>
           </div>
           <div className='budget-column'>
             <h3>Expenses</h3>
             <ul>
-            <ul>
               <BudgetItem edges={outgoing_edges}/>
             </ul>
-            </ul>
+            <Popup trigger={<button> Add edge</button>} position="right center">
+              <InputEdgeForm />
+            </Popup>
           </div>
         </div>
         <div>
