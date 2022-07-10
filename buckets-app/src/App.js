@@ -12,7 +12,6 @@ import CardActions from '@mui/material/CardActions';
 
 
 function get_displayable_nodes(nodes){
-  console.log(nodes);
   let graph_nodes = []
   nodes.forEach(node=> {
     graph_nodes.push({
@@ -20,12 +19,10 @@ function get_displayable_nodes(nodes){
       'group': 1
     })
   })
-  console.log(graph_nodes);
   return graph_nodes;
 }
 
 function get_displayable_edges(edges){
-  console.log(edges);
   let graph_edges = []
   edges.forEach(edge=> {
     graph_edges.push({
@@ -34,7 +31,6 @@ function get_displayable_edges(edges){
       value: edge.amount
     })
   })
-  console.log(graph_edges);
   return graph_edges;
 }
 
@@ -49,7 +45,6 @@ function App() {
     var dataset = get_graph();
     setData(dataset);
     setLoading(false);
-    console.log(data);
   }, []);
 
   function get_graph() {
@@ -59,13 +54,11 @@ function App() {
       "links": get_displayable_edges(globalGraph.get_edges())
     };
     setFocusNode(nodes[0]);
-    console.log(nodes[0]);
     return mydata;
   }
 
   function handleClick(node) {
     // When Nodes are clicked set the focus node to the chose.
-    console.log(node);
     let id = node.id;
     setFocusNode(globalGraph.get_node(id));
   };
@@ -101,6 +94,69 @@ function App() {
         /> 
   }
 
+  const NodeDetail = () => {
+    let incoming_edges = globalGraph.get_incoming_edges(focusNode);
+    let income = 500;
+    let outgoing_edges  = globalGraph.get_outgoing_edges(focusNode);
+    let expenses = 200;
+
+    const BudgetItem = (edges, incoming=false) => {
+      edges = edges.edges
+      return (
+        <div>
+          {
+            Object.keys(edges).map((key, index) => {
+              let displayName = edges[key].sourceId ? incoming : edges[key].dest_id
+              return (
+                <li key={index}>{displayName} - {edges[key].amount}</li>
+              )
+            })
+          }
+        </div>
+      );
+    }
+    return (
+      <div>
+        <h1>{focusNode.name}</h1><br/>
+        <h4><i>Accounts Attached : 1</i></h4>
+        <ul>
+          <li>Balance: {focusNode.current_balance}</li>
+          <li>Income: {income}</li>
+          <li>Expenses: {expenses}</li>
+        </ul>
+        <h2>Budget</h2>
+        <div className='budget-view-box'>
+          <div className='budget-column'>
+            <h3>Income</h3>
+            <ul>
+            <BudgetItem edges={incoming_edges}/>
+            </ul>
+          </div>
+          <div className='budget-column'>
+            <h3>Expenses</h3>
+            <ul>
+            <ul>
+              <BudgetItem edges={outgoing_edges}/>
+            </ul>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h2>Recent Transactions</h2>
+          <ul>
+            <li>Mock Transaction for now</li>
+            <li>Mock Transaction for now</li>
+            <li>Mock Transaction for now</li>
+            <li>Mock Transaction for now</li>
+          </ul>
+        </div>
+      </div>
+
+      
+
+    )
+  }
+
   if (isLoading) {
     return <div className="App">Loading..</div>
   }
@@ -111,19 +167,12 @@ function App() {
       <div className="info-side workbench">
         <NodeFocusForm />
       </div>
-      <div className="graph-side workbench">
-        <Graph />
+      <div className="inspect-side workbench">
+        {/* <Graph /> */}
+        <NodeDetail node={focusNode}/>
       </div>
     </div>
-    <div className="inspect-area">
-      <h1>Inspection Area</h1>
-      <div className='interactive-inspection'>
-        <h2>Interactive</h2>
-      </div>
-      <div className='display-inspection'>
-        <h2>Informational</h2>
-      </div>
-    </div>
+
     </>
 
   );

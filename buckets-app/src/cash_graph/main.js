@@ -4,6 +4,8 @@ class Graph {
     constructor() {
         this.nodes = {};
         this.edges = {};
+        this.edges_outgoing_index = {};
+        this.edges_incoming_index = {};
     }
 
     get_nodes() {
@@ -20,6 +22,8 @@ class Graph {
 
     add_node(node) {
         this.nodes[node.id] = node;
+        this.edges_outgoing_index[node.id] = [];
+        this.edges_incoming_index[node.id] = [];
     }
 
     get_edges() {
@@ -32,7 +36,18 @@ class Graph {
 
     add_edge(edge) {
         this.edges[edge.id] = edge;
+        this.edges_outgoing_index[edge.source_id].push(edge);
+        this.edges_incoming_index[edge.dest_id].push(edge);
     }
+
+    get_incoming_edges(node) {
+        return this.edges_incoming_index[node.id];
+    }
+
+    get_outgoing_edges(node) {
+        return this.edges_outgoing_index[node.id];
+    }
+
 };
 let globalGraph = new Graph();
 

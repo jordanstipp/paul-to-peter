@@ -56,29 +56,19 @@
   background-color: red;
 }
 
-.graph-side {
+.inspect-side {
   width: 50%;
   height: 500px;
 }
 
-.inspect-area {
-  background-color: black;
-  width: 100%;
-  height: 30%;
+.budget-view-box {
   display: flex;
   flex-direction: row;
-  text-align: left;
+  justify-content: center;
 }
 
-.interactive-inspection {
-  width: 40%;
-  height: 100%;
-  background-color: green;
-}
-.display-inspection {
-  width: 60%;
-  height: 100%;
-  background-color: grey;
+.budget-column {
+  width: 50%;
 }
 
 
