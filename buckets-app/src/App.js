@@ -66,29 +66,49 @@ function App() {
 
   function handleClick(node) {
     // When Nodes are clicked set the focus node to the chose.
+    console.log(node);
     let id = node.id;
     setFocusNode(globalGraph.get_node(id));
   };
 
-  const NodeFocusForm = () => {
-    return <>
-      <Card variant="outlined" sx={{maxWidth: 400, maxHeight: 200, alignContent: "center"}}>
-        <CardContent>
-          <Typography variant="h9" gutterBottom>
-            Type: {focusNode.type}
-          </Typography>
-          <Typography variant="h3">
-            {focusNode.name}
-          </Typography> 
-          <Typography variant="h5">
-            Current balance: ${focusNode.current_balance}
-          </Typography>       
-        </CardContent>
-        <CardActions>
-          <Button size="small">Inspect Node</Button>
-      </CardActions>
-      </Card>
-    </>
+  const NodeViewCard = (props) => {
+    return (<Card variant="outlined" sx={{maxWidth: 400, maxHeight: 200, alignContent: "center"}}>
+          <CardContent>
+            <Typography variant="h9" gutterBottom>
+              Type: {props.node.type}
+            </Typography>
+            <Typography variant="h3">
+              {props.node.name}
+            </Typography> 
+            <Typography variant="h5">
+              Current balance: ${props.node.current_balance}
+            </Typography>       
+          </CardContent>
+          <CardActions>
+            <Button size="small" onClick={()=>{
+              handleClick(props.node);
+            }}>
+                Inspect Node
+              </Button>
+        </CardActions>
+        </Card>)
+  };
+
+  const NodeFocusForm = (props) => {
+    return (
+    <div>
+      <ul>
+        {
+          Object.keys(props.nodes).map((content, index) => {
+              const node = props.nodes[index]
+              return (
+                <li key={index}><NodeViewCard node={node}/></li>
+              )
+            })
+        }
+      </ul>
+    </div>
+    )
   }
 
   {/* TODO(mjones): Toggle between node detail view and the graph */}
@@ -113,7 +133,6 @@ function App() {
     let outgoing_edges  = globalGraph.get_outgoing_edges(focusNode);
     let expenses = 0;
     outgoing_edges.forEach(edge => {
-      console.log(edge);
       expenses += edge.amount;
     })
 
@@ -233,7 +252,7 @@ function App() {
     <h1>Welcome to your financial health</h1>
     <div className="dev-area">
       <div className="info-side workbench">
-        <NodeFocusForm />
+        <NodeFocusForm nodes={globalGraph.get_nodes()}/>
       </div>
       <div className="inspect-side workbench">
         {/* <Graph /> */}
