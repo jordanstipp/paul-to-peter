@@ -4,61 +4,73 @@ import MenuItem from '@mui/material/MenuItem';
 import Popup from 'reactjs-popup';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
-
-
+import globalGraph from '../cash_graph/main';
 
 
 const InputEdgeForm = (props) => {
-    console.log(props.nodes);
     const [newEdgeState, setNewEdgeState] = useState({
-        targetNode: null,
+        targetNode: '',
         amount: '0'
     });
     const handleNewEdgeAmountChange = event => {
         setNewEdgeState({
-            amount: event.target.value
+            amount: event.target.value,
+            targetNode: newEdgeState.targetNode
         });
-      console.log('value is:', event.target.value);
+      console.log('New Edge value is:', event.target.value);
     };
 
     const handleTargetNodeChange =  event => {
         setNewEdgeState({
+            amount: newEdgeState.amount,
             targetNode: event.target.value
         });
       console.log('target is : ' + event.target.value);
     };
 
-    function handleSubmit() {
+    function handleSubmit(event) {
+        console.log('Submitting new edge ' + newEdgeState.targetNode + ' ' + newEdgeState.amount)
         if (props.incoming === true){
-            this.props.newEdgeFunction(newEdgeState.targetNode, props.thisNode, newEdgeState.amount)
+            props.newEdgeFunction(newEdgeState.targetNode, props.node.id, newEdgeState.amount)
         } else {
-            this.props.newEdgeFunction(props.thisNode, newEdgeState.targetNode, newEdgeState.amount)
+            props.newEdgeFunction(props.node.id, newEdgeState.targetNode, newEdgeState.amount)
         }
+        setNewEdgeState({
+          amount: '0',
+          targetNode: ''
+        });
+        event.preventDefault();
     }
 
     return(
       <div>
-        <h4>New Edge</h4>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={props.nodes[0].id}
-          label="Income Edge"
-          onChange={handleTargetNodeChange}
-        >
-          {
-            Object.keys(props.nodes).map((key, i) => {
-              const val = props.nodes[key].id
-              return (
-                <MenuItem key={val} value={val}>{val}</MenuItem>
-              )
-            })
-          }
-        </Select>
-        <TextField variant="outlined" onChange={handleNewEdgeAmountChange}>
-          Amount
-        </TextField>
-        <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+          <h4>Add New</h4>
+          <form onSubmit={handleSubmit}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={newEdgeState.targetNode}
+                label="Income Edge"
+                onChange={handleTargetNodeChange}
+            >
+              {
+                Object.keys(props.nodes).map((key, i) => {
+                  const val = props.nodes[key].id
+                  return (
+                    <MenuItem key={val} value={val}>{val}</MenuItem>
+                  )
+                })
+              }
+            </Select>
+            <TextField 
+              variant="outlined"
+              onChange={handleNewEdgeAmountChange}
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+              value={newEdgeState.amount}
+            >
+            </TextField>
+            <Button variant="contained" type='submit'>Submit</Button>
+          </form>
       </div>
     )
 }
@@ -83,7 +95,9 @@ const BudgetView = (props) => {
             <ul>
             {
               Object.keys(props.edges).map((key, index) => {
-                let displayName = props.edges[key].sourceId ? props.incoming : props.edges[key].dest_id
+                console.log(props.edges[key])
+                console.log(props.incoming)
+                let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
                 return (
                   <li key={index}>{displayName} - {props.edges[key].amount}</li>
                 )
@@ -99,36 +113,56 @@ const BudgetView = (props) => {
           <div className='budget-column'>
             <h3>Income</h3>
             <BudgetList edges={props.incoming_edges} incoming={true}/>
-            <Popup trigger={<button> Add edge</button>} position="right center">
-              <InputEdgeForm nodes={props.nodes}/>
-            </Popup>
+            <InputEdgeForm
+              node={props.node}
+              nodes={props.nodes}
+              newEdgeFunction={props.newEdgeFunction}
+              incoming={true}
+            />
           </div>
           <div className='budget-column'>
             <h3>Expenses</h3>
-            <BudgetList edges={props.outgoing_edges}/>
-            <Popup trigger={<button> Add edge</button>} position="right center">
-              <InputEdgeForm
-                nodes={props.nodes}
-                newEdgeFunction={props.newEdgeFunction}
-              />
-            </Popup>
+            <BudgetList edges={props.outgoing_edges} incoming={false}/>
+            <InputEdgeForm
+              node={props.node}
+              nodes={props.nodes}
+              newEdgeFunction={props.newEdgeFunction}
+              incoming={false}
+            />
           </div>
         </div>
     )
 }
 
+const TransactionList = (props) => {
+  console.log('Bitch');
+  return (
+    <div>
+      <ul>
+      {
+        Object.keys(props.transactions).map((key, index) => {
+          return (
+            <li key={index}>{props.transactions[key]}</li>
+          )
+        })
+      }
+      </ul>
+    </div>
+  )
+};
+
+
 
 const NodeInspectView = (props) => {
     let income = 0
     props.incoming_edges.forEach(edge => {
-      income += edge.amount;
+      income += parseInt(edge.amount);
     })
 
     let expenses = 0;
     props.outgoing_edges.forEach(edge => {
-      expenses += edge.amount;
+      expenses += parseInt(edge.amount);
     })
-
     return (
       <div>
         <h1>{props.node.name}</h1><br/>
@@ -139,6 +173,7 @@ const NodeInspectView = (props) => {
         />
         <h2>Budget</h2>
         <BudgetView
+            node={props.node}
             nodes={props.nodes}
             incoming_edges={props.incoming_edges}
             outgoing_edges={props.outgoing_edges}
@@ -146,10 +181,8 @@ const NodeInspectView = (props) => {
         />
         <div>
           <h2>Recent Transactions</h2>
+          {/* <TransactionList node={props.node.transactions}/>           */}
           <ul>
-            <li>Mock Transaction for now</li>
-            <li>Mock Transaction for now</li>
-            <li>Mock Transaction for now</li>
             <li>Mock Transaction for now</li>
           </ul>
         </div>

@@ -26,6 +26,10 @@ class Graph {
         this.edges_incoming_index[node.id] = [];
     }
 
+    add_new_edge_to_graph(sourceID, destinationID, amount){
+        let _ = new Edge(sourceID, destinationID, amount)
+    }
+
     get_edges() {
         let raw_edges = [];
         for (let edge_id in this.edges){
@@ -37,7 +41,9 @@ class Graph {
     add_edge(edge) {
         this.edges[edge.id] = edge;
         this.edges_outgoing_index[edge.source_id].push(edge);
+        console.log(this.edges_outgoing_index)
         this.edges_incoming_index[edge.dest_id].push(edge);
+        console.log(this.edges_incoming_index)
     }
 
     get_incoming_edges(node) {
@@ -67,6 +73,7 @@ class Node {
         this.current_balance = current_balance;
         this.type = type;
         this.user_id = default_user_id;
+        this.transactions = [];
         globalGraph.add_node(this);
     }
 
@@ -108,9 +115,9 @@ class IncomeSource extends Node {
     }
 };
 
-let user = new User('Self_User', 'User', 10000);
+let user = new User('Self_User', 'User', 0);
 
-let nuro = new IncomeSource('Nuro', user.id, 100000);
+let nuro = new IncomeSource('Nuro', user.id, 1000000);
 
 
 let retirement = new Investment('401k', 10000);

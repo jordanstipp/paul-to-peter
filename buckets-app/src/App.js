@@ -31,8 +31,11 @@ function App() {
   };
 
   /**Adds a new edge to the graph. */
-  function newEdgeFunction(source, destination, amount){
-    console.log('New edge being added from ' + source + "->" + destination + "of amont: " + amount)
+  function newEdgeFunction(sourceID, destinationID, amount){
+    console.log('New edge being added from ' + sourceID + "->" + destinationID + "of amont: " + amount)
+    console.log(sourceID)
+    console.log(destinationID)
+    data.add_new_edge_to_graph(sourceID, destinationID, amount)
   }  
 
   /**Render the app. */
