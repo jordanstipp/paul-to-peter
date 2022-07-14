@@ -3,10 +3,13 @@ import { CardContent } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+
 
 
 const NodeViewCard = (props) => {
-    return (<Card variant="outlined" sx={{maxWidth: 400, maxHeight: 200, alignContent: "center"}}>
+    return (<Card variant="outlined" sx={{width: 400, maxHeight: 200, alignContent: "center"}}>
           <CardContent>
             <Typography variant="h9" gutterBottom>
               Type: {props.node.type}
@@ -31,16 +34,16 @@ const NodeViewCard = (props) => {
 const NodeList = (props) => {
     return (
     <div>
-      <ul>
+      <List>
         {
           Object.keys(props.nodes).map((content, index) => {
               const node = props.nodes[index]
               return (
-                <li key={index}><NodeViewCard node={node} handleClick={props.handleClick}/></li>
+                <ListItem key={index}><NodeViewCard node={node} handleClick={props.handleClick}/></ListItem>
               )
             })
         }
-      </ul>
+      </List>
     </div>
     )
   }
