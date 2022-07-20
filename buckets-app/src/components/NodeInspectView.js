@@ -5,13 +5,19 @@ import Popup from 'reactjs-popup';
 import Button from '@mui/material/Button';
 import React, { useState } from 'react';
 import globalGraph from '../cash_graph/main';
+import AddIcon from '@mui/icons-material/Add';
 
+const formStyle = {
+  display: "flex",
+  flexDirection: "row",
+};
 
 const InputEdgeForm = (props) => {
     const [newEdgeState, setNewEdgeState] = useState({
         targetNode: '',
         amount: '0'
     });
+    const [newEdgeBool, setNewEdgeBool] = useState(false);
     const handleNewEdgeAmountChange = event => {
         setNewEdgeState({
             amount: event.target.value,
@@ -39,40 +45,54 @@ const InputEdgeForm = (props) => {
           amount: '0',
           targetNode: ''
         });
+        setNewEdgeBool(false);
         event.preventDefault();
     }
 
-    return(
-      <div>
-          <h4>Add New</h4>
-          <form onSubmit={handleSubmit}>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={newEdgeState.targetNode}
-                label="Income Edge"
-                onChange={handleTargetNodeChange}
-            >
-              {
-                Object.keys(props.nodes).map((key, i) => {
-                  const val = props.nodes[key].id
-                  return (
-                    <MenuItem key={val} value={val}>{val}</MenuItem>
-                  )
-                })
-              }
-            </Select>
-            <TextField 
-              variant="outlined"
-              onChange={handleNewEdgeAmountChange}
-              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-              value={newEdgeState.amount}
-            >
-            </TextField>
-            <Button variant="contained" type='submit'>Submit</Button>
-          </form>
-      </div>
-    )
+    if (newEdgeBool){
+      return(
+        <div style={formStyle}>
+            <form onSubmit={handleSubmit}>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={newEdgeState.targetNode}
+                  label="Income Edge"
+                  onChange={handleTargetNodeChange}
+                  style={{minWidth: "40%"}}
+              >
+                {
+                  Object.keys(props.nodes).map((key, i) => {
+                    const val = props.nodes[key].id
+                    return (
+                      <MenuItem key={val} value={val}>{val}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+              <TextField 
+                variant="outlined"
+                onChange={handleNewEdgeAmountChange}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                value={newEdgeState.amount}
+                style={{maxWidth: "20%"}}
+              >
+              </TextField>
+              <Button variant="contained" type='submit' size="small">+</Button>
+              <Button variant="outlined" onClick={()=>{setNewEdgeBool(false)}} size="small">Cancel</Button>
+            </form>
+        </div>
+      )
+    } else {
+      return (
+        <div style={{maxHeight: "10%"}}>
+          <Button variant="outlined" onClick={()=>{setNewEdgeBool(true)}} size="small">Add new Edge</Button>
+        </div>
+        
+      )
+    }
+
+    
 }
 
 const BalanceView = (props) => {
@@ -87,6 +107,7 @@ const BalanceView = (props) => {
         </>
     )
 }
+
 
 const BudgetList = (props) => {
   return (
@@ -157,6 +178,12 @@ const TransactionList = (props) => {
 };
 
 
+const inspectComponentStyle = {
+  height: "100%",
+  marginTop: 0,
+  border: "2px solid black"
+}
+
 class NodeInspectView extends React.Component {
   constructor(props) {
     super(props);
@@ -173,7 +200,7 @@ class NodeInspectView extends React.Component {
       expenses += parseInt(edge.amount);
     })
     return (
-      <div>
+      <div style={inspectComponentStyle}>
         <h1>{this.props.node.name}</h1><br/>
         <BalanceView
             current_balance={this.props.node.current_balance}

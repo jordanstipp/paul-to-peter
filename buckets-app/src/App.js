@@ -47,13 +47,13 @@ function App() {
     <>
     <h1>Welcome to your financial health</h1>
     <div className="dev-area">
-      <div className="info-side workbench">
+      <div className="info-side">
         <NodeQuickView
           nodes={data.get_nodes()}
           handleClick={handleNodeFocusClick}
         />
       </div>
-      <div className="inspect-side workbench">
+      <div className="inspect-side">
         {/* Toggle onto the <Graph /> when developed*/}
         <NodeInspectView
           node={focusNode}

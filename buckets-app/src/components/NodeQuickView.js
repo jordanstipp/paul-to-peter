@@ -7,9 +7,15 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 
 
+const cardStyle = {
+  width: "90%",
+  maxHeight: "15%",
+  alignContent: "center",
+  color: "grey"
+};
 
 const NodeViewCard = (props) => {
-    return (<Card variant="outlined" sx={{width: 400, maxHeight: 200, alignContent: "center"}}>
+    return (<Card variant="outlined" sx={cardStyle}>
           <CardContent>
             <Typography variant="h9" gutterBottom>
               Type: {props.node.type}
@@ -31,10 +37,18 @@ const NodeViewCard = (props) => {
         </Card>)
 };
 
+const listStyle = {
+  width: "100%",
+  height: "100%",
+  border: "3px solid black",
+  alignContent: "left",
+  maxHeight: "100%", 
+  overflow: "auto"
+};
+
 const NodeList = (props) => {
     return (
-    <div>
-      <List>
+      <List style={listStyle}>
         {
           Object.keys(props.nodes).map((content, index) => {
               const node = props.nodes[index]
@@ -44,15 +58,17 @@ const NodeList = (props) => {
             })
         }
       </List>
-    </div>
     )
-  }
+}
 
+const quickViewStyle = {
+  height: "95%"
+}
 function NodeQuickView (props) {
     return (
-        <>
+        <div style={quickViewStyle}>
             <NodeList nodes={props.nodes} handleClick={props.handleClick}></NodeList>
-        </>
+        </div>
     )
 }
 
