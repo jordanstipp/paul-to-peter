@@ -36,6 +36,7 @@ function App() {
     console.log(sourceID)
     console.log(destinationID)
     data.add_new_edge_to_graph(sourceID, destinationID, amount)
+    setData(data);
   }  
 
   /**Render the app. */

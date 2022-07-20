@@ -3,7 +3,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Popup from 'reactjs-popup';
 import Button from '@mui/material/Button';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import globalGraph from '../cash_graph/main';
 
 
@@ -88,54 +88,59 @@ const BalanceView = (props) => {
     )
 }
 
-const BudgetView = (props) => {
-    const BudgetList = (props) => {
-        return (
-          <div>
-            <ul>
-            {
-              Object.keys(props.edges).map((key, index) => {
-                console.log(props.edges[key])
-                console.log(props.incoming)
-                let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
-                return (
-                  <li key={index}>{displayName} - {props.edges[key].amount}</li>
-                )
-              })
-            }
-            </ul>
-          </div>
-        );
-    }
-    
-    return(
-        <div className='budget-view-box'>
-          <div className='budget-column'>
-            <h3>Income</h3>
-            <BudgetList edges={props.incoming_edges} incoming={true}/>
-            <InputEdgeForm
-              node={props.node}
-              nodes={props.nodes}
-              newEdgeFunction={props.newEdgeFunction}
-              incoming={true}
-            />
-          </div>
-          <div className='budget-column'>
-            <h3>Expenses</h3>
-            <BudgetList edges={props.outgoing_edges} incoming={false}/>
-            <InputEdgeForm
-              node={props.node}
-              nodes={props.nodes}
-              newEdgeFunction={props.newEdgeFunction}
-              incoming={false}
-            />
-          </div>
-        </div>
-    )
+const BudgetList = (props) => {
+  return (
+    <div>
+      <ul>
+      {
+        Object.keys(props.edges).map((key, index) => {
+          let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
+          return (
+            <li key={index}>{displayName} - {props.edges[key].amount}</li>
+          )
+        })
+      }
+      </ul>
+    </div>
+  );
 }
 
+class BudgetView extends React.Component {
+  constructor(props){
+    super(props)
+
+  }
+
+  render() {
+    return(
+      <div className='budget-view-box'>
+        <div className='budget-column'>
+          <h3>Income</h3>
+          <BudgetList edges={this.props.incoming_edges} incoming={true}/>
+          <InputEdgeForm
+            node={this.props.node}
+            nodes={this.props.nodes}
+            newEdgeFunction={this.props.newEdgeFunction}
+            incoming={true}
+          />
+        </div>
+        <div className='budget-column'>
+          <h3>Expenses</h3>
+          <BudgetList edges={this.props.outgoing_edges} incoming={false}/>
+          <InputEdgeForm
+            node={this.props.node}
+            nodes={this.props.nodes}
+            newEdgeFunction={this.props.newEdgeFunction}
+            incoming={false}
+          />
+        </div>
+      </div>
+  )
+  }
+}
+
+
 const TransactionList = (props) => {
-  console.log('Bitch');
   return (
     <div>
       <ul>
@@ -152,32 +157,36 @@ const TransactionList = (props) => {
 };
 
 
+class NodeInspectView extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
-const NodeInspectView = (props) => {
+  render() {
     let income = 0
-    props.incoming_edges.forEach(edge => {
+    this.props.incoming_edges.forEach(edge => {
       income += parseInt(edge.amount);
     })
 
     let expenses = 0;
-    props.outgoing_edges.forEach(edge => {
+    this.props.outgoing_edges.forEach(edge => {
       expenses += parseInt(edge.amount);
     })
     return (
       <div>
-        <h1>{props.node.name}</h1><br/>
+        <h1>{this.props.node.name}</h1><br/>
         <BalanceView
-            current_balance={props.node.current_balance}
+            current_balance={this.props.node.current_balance}
             income={income}
             expenses={expenses}
         />
         <h2>Budget</h2>
         <BudgetView
-            node={props.node}
-            nodes={props.nodes}
-            incoming_edges={props.incoming_edges}
-            outgoing_edges={props.outgoing_edges}
-            newEdgeFunction={props.newEdgeFunction}
+            node={this.props.node}
+            nodes={this.props.nodes}
+            incoming_edges={this.props.incoming_edges}
+            outgoing_edges={this.props.outgoing_edges}
+            newEdgeFunction={this.props.newEdgeFunction}
         />
         <div>
           <h2>Recent Transactions</h2>
@@ -189,5 +198,6 @@ const NodeInspectView = (props) => {
       </div>
     )
   }
+};
 
 export default NodeInspectView;
