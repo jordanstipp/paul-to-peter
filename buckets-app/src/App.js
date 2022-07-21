@@ -1,12 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import globalGraph from './cash_graph/main.js';
+import userGraph from './cash_graph/mekhi.js';
 import Button from '@mui/material/Button';
 
 import NodeQuickView from './components/NodeQuickView';
 import NodeInspectView from './components/NodeInspectView';
 import CashGraphView from './components/CashGraphView';
+
+let globalGraph = userGraph;
 
 const graphDisplayStyle = {
   display: "flex",

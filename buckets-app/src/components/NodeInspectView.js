@@ -104,6 +104,7 @@ const BalanceView = (props) => {
             <li>Balance: ${props.current_balance}</li>
             <li>Income: ${props.income}</li>
             <li>Expenses: ${props.expenses}</li>
+            <li>Margin: ${props.income - props.expenses}</li>
             </ul>
         </>
     )

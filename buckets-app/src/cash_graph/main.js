@@ -1,7 +1,7 @@
 const default_user_id = 'DefaultUser';
 const DEFAULT_NODE_TYPES = ['User', 'Investment', 'Expense', 'Savings', 'Income Source', 'All']
 
-class Graph {
+export class Graph {
     constructor() {
         this.nodes = {};
         this.edges = {};
@@ -97,27 +97,26 @@ class Graph {
     }
 
 };
-let globalGraph = new Graph();
 
-class Edge {
-    constructor(source_id, dest_id, amount){
+export class Edge {
+    constructor(graph, source_id, dest_id, amount){
         this.id = source_id + "_" + dest_id + "_" + amount
         this.source_id = source_id;
         this.dest_id = dest_id;
         this.amount = amount;
-        globalGraph.add_edge(this);
+        graph.add_edge(this);
     }
 }
 
-class Node {
-    constructor(name, type='default', current_balance=0.0) {
+export class Node {
+    constructor(graph, name, type='default', current_balance=0.0) {
         this.id = name;
         this.name = name;
         this.current_balance = current_balance;
         this.type = type;
         this.user_id = default_user_id;
         this.transactions = [];
-        globalGraph.add_node(this);
+        graph.add_node(this);
     }
 
     outflows() {
@@ -130,7 +129,7 @@ class Node {
 };
 
 
-class Investment extends Node {
+export class Investment extends Node {
     constructor(name, current_balance) {
         super(name, DEFAULT_NODE_TYPES[1], current_balance=current_balance);
         this.annual_return = 0.0;
@@ -142,7 +141,7 @@ class Investment extends Node {
     }
 };
 
-class Savings extends Node {
+export class Savings extends Node {
     constructor(name, current_balance) {
         super(name, DEFAULT_NODE_TYPES[3], current_balance=current_balance);
         this.annual_return = 0.0;
@@ -154,37 +153,23 @@ class Savings extends Node {
     }
 };
 
-class Expense extends Node {
+export class Expense extends Node {
     constructor(name) {
         super(name, DEFAULT_NODE_TYPES[2]);
     }
 };
 
-class User extends Node {
+export class User extends Node {
     // Use the super constructor.
     constructor(name, current_balance){
         super(name, DEFAULT_NODE_TYPES[0], current_balance)
     }
 };
 
-class IncomeSource extends Node {
+export class IncomeSource extends Node {
     constructor(name, dest_id, amount) {
         super(name, DEFAULT_NODE_TYPES[4]);
         let income = new Edge(this.id, dest_id, amount)
     }
 };
 
-let user = new User('Self_User', 0);
-
-let nuro = new IncomeSource('Nuro', user.id, 1000000);
-
-
-let retirement = new Investment('401k', 10000);
-let retirment_contribution = new Edge(user.id, retirement.id, 10000);
-
-let bmw_expense = new Expense('BMW i3');
-let bmw_cost = new Edge(user.id, bmw_expense.id, 9600);
-
-
-console.log(globalGraph);
-export default globalGraph;
