@@ -181,7 +181,7 @@ const TransactionList = (props) => {
 const inspectComponentStyle = {
   height: "100%",
   marginTop: 0,
-  border: "2px solid black"
+  border: "1px solid black"
 }
 
 class NodeInspectView extends React.Component {
