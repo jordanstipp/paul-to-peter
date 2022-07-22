@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 
 import NodeQuickView from './components/NodeQuickView';
 import NodeInspectView from './components/NodeInspectView';
+import CashGraphView from './components/CashGraphView';
 
 
 
@@ -13,6 +14,7 @@ function App() {
   const [data, setData] = useState({});
   const [focusNode, setFocusNode] = useState({});
   const [isLoading, setLoading] = useState(true);
+  const [showGraph, seeGraphView] = useState(false);
 
   /**Loads the data from backend (which doesnt exist today) */
   useEffect(() => {
@@ -51,17 +53,30 @@ function App() {
         <NodeQuickView
           nodes={data.get_nodes()}
           handleClick={handleNodeFocusClick}
+          categories={data.node_types}
         />
       </div>
       <div className="inspect-side">
-        {/* Toggle onto the <Graph /> when developed*/}
-        <NodeInspectView
-          node={focusNode}
-          nodes={data.get_nodes()}
-          incoming_edges={data.get_incoming_edges(focusNode)}
-          outgoing_edges={data.get_outgoing_edges(focusNode)}
-          newEdgeFunction={newEdgeFunction}
-        />
+        <Button
+          onClick={()=>{
+            seeGraphView(!showGraph)}
+          }
+          variant="outlined"
+        >Toggle Graph</Button>
+        {showGraph ? 
+          <CashGraphView 
+            handleNodeFocusClick={handleNodeFocusClick}
+            nodes={data.get_nodes()}
+            edges={data.get_edges()}
+          /> :
+          <NodeInspectView
+            node={focusNode}
+            nodes={data.get_nodes()}
+            incoming_edges={data.get_incoming_edges(focusNode)}
+            outgoing_edges={data.get_outgoing_edges(focusNode)}
+            newEdgeFunction={newEdgeFunction}
+          />
+        }
       </div>
     </div>
     </>

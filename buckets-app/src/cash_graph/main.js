@@ -1,4 +1,5 @@
 const default_user_id = 'DefaultUser';
+const DEFAULT_NODE_TYPES = ['User', 'Investment', 'Expense', 'Savings', 'Income Source', 'All']
 
 class Graph {
     constructor() {
@@ -6,6 +7,7 @@ class Graph {
         this.edges = {};
         this.edges_outgoing_index = {};
         this.edges_incoming_index = {};
+        this.node_types = DEFAULT_NODE_TYPES;
     }
 
     get_nodes() {
@@ -31,6 +33,7 @@ class Graph {
     }
 
     get_edges() {
+        console.log(this.edges)
         let raw_edges = [];
         for (let edge_id in this.edges){
             raw_edges.push(this.edges[edge_id]);
@@ -86,9 +89,22 @@ class Node {
     }
 };
 
+
 class Investment extends Node {
     constructor(name, current_balance) {
-        super(name, 'Investment', current_balance=current_balance);
+        super(name, DEFAULT_NODE_TYPES[1], current_balance=current_balance);
+        this.annual_return = 0.0;
+        this.monthly_contribution = 0.0;
+    }
+
+    add_outgoing_edge(edge) {
+        this.outgoing_edges.push(edge);
+    }
+};
+
+class Savings extends Node {
+    constructor(name, current_balance) {
+        super(name, DEFAULT_NODE_TYPES[3], current_balance=current_balance);
         this.annual_return = 0.0;
         this.monthly_contribution = 0.0;
     }
@@ -100,22 +116,25 @@ class Investment extends Node {
 
 class Expense extends Node {
     constructor(name) {
-        super(name, 'Expense');
+        super(name, DEFAULT_NODE_TYPES[2]);
     }
 };
 
 class User extends Node {
     // Use the super constructor.
+    constructor(name, current_balance){
+        super(name, DEFAULT_NODE_TYPES[0], current_balance)
+    }
 };
 
 class IncomeSource extends Node {
     constructor(name, dest_id, amount) {
-        super(name, 'Income Source');
+        super(name, DEFAULT_NODE_TYPES[4]);
         let income = new Edge(this.id, dest_id, amount)
     }
 };
 
-let user = new User('Self_User', 'User', 0);
+let user = new User('Self_User', 0);
 
 let nuro = new IncomeSource('Nuro', user.id, 1000000);
 

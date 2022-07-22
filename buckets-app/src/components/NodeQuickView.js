@@ -66,13 +66,31 @@ const NodeList = (props) => {
     )
 }
 
+const searchStyle = {
+  width: "100%",
+  height: "10%",
+  display: "flex",
+  flexDirection: "row"
+};
+
 const SearchBar = (props) => {
+  function filter_nodes_by_category(category) {
+    const nodesInCategory = props.allNodes.filter(node => node.type === category || category === 'All')
+    props.setDisplayNodes(nodesInCategory)
+  }
+  function filter_nodes_by_str(substr) {
+    const nodesInCategory = props.allNodes.filter(node => node.name.toLowerCase().indexOf(substr.toLowerCase()) !== -1)
+    props.setDisplayNodes(nodesInCategory)
+  }
   return (
-    <form style={{width: "100%", height: "10%", display: "flex", flexDirection: "row"}}>
+    <form style={searchStyle}>
       <TextField 
         id="search-bar"
         className='text'
-        onInput={(e)=>{}}
+        onInput={(e)=>{
+          console.log(e.target.value)
+          filter_nodes_by_str(e.target.value)
+        }}
         label="Node name"
         variant="outlined"
         placeholder="Search"
@@ -85,9 +103,13 @@ const SearchBar = (props) => {
       <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value=""
-          label="Node Category"
-          onChange={(e)=>{}}
+          value={props.category}
+          label="Category"
+          onChange={(e)=>{
+            console.log(e.target.value)
+            filter_nodes_by_category(e.target.value)
+            props.setCategory(e.target.value)
+          }}
           style={{width: "30%", minHeight: "100%"}}
       >
         {
@@ -111,19 +133,18 @@ const quickViewStyle = {
   flexDirection: "column"
 }
 
-class NodeQuickView extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const NodeQuickView = (props) => {
+  const [displayedNodes, setDisplayedNodesState] = useState(props.nodes)
+  const [currentCategory, setCurrentCategory] = useState('All')
 
-  render() {
-    return (
-      <div style={quickViewStyle}>
-        <SearchBar categories={["Income Source", "Investment", "Expense"]}/>
-        <NodeList nodes={this.props.nodes} handleClick={this.props.handleClick}></NodeList>
-      </div>
-    )
-  }
+  return (
+    <div style={quickViewStyle}>
+      <SearchBar allNodes={props.nodes} setDisplayNodes={setDisplayedNodesState}
+                 categories={props.categories} setCategory={setCurrentCategory} category={currentCategory}/>
+      <NodeList nodes={displayedNodes} handleClick={props.handleClick}></NodeList>
+    </div>
+  )
+
 
 }
 
