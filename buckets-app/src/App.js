@@ -8,7 +8,29 @@ import NodeQuickView from './components/NodeQuickView';
 import NodeInspectView from './components/NodeInspectView';
 import CashGraphView from './components/CashGraphView';
 
-
+const graphDisplayStyle = {
+  display: "flex",
+  flexDirection: "row"
+};
+const GraphDisplay = (props) => {
+  return(
+    <div>
+      <CashGraphView 
+          handleNodeFocusClick={props.handleNodeFocusClick}
+          nodes={props.data.get_nodes()}
+          edges={props.data.get_edges()}
+      />
+      <NodeInspectView
+          node={props.focusNode}
+          nodes={props.data.get_nodes()}
+          incoming_edges={props.data.get_incoming_edges(props.focusNode)}
+          outgoing_edges={props.data.get_outgoing_edges(props.focusNode)}
+          newEdgeFunction={props.newEdgeFunction}
+          displayFullInfo={false}
+        />
+    </div>
+  );
+};
 
 function App() {
   const [data, setData] = useState({});
@@ -64,17 +86,19 @@ function App() {
           variant="outlined"
         >Toggle Graph</Button>
         {showGraph ? 
-          <CashGraphView 
+           <GraphDisplay 
+            data={data}
+            focusNode={focusNode}
+            newEdgeFunction={newEdgeFunction}
             handleNodeFocusClick={handleNodeFocusClick}
-            nodes={data.get_nodes()}
-            edges={data.get_edges()}
-          /> :
+           />:
           <NodeInspectView
             node={focusNode}
             nodes={data.get_nodes()}
             incoming_edges={data.get_incoming_edges(focusNode)}
             outgoing_edges={data.get_outgoing_edges(focusNode)}
             newEdgeFunction={newEdgeFunction}
+            displayFullInfo={true}
           />
         }
       </div>

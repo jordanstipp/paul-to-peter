@@ -65,21 +65,20 @@ const CashGraphView = (props) => {
       <div style={graphStyle}>
         <ForceGraph2D
             ref={fgRef}
-            style={graphStyle}
             width={850}
-            height={600}
+            height={400}
             backgroundColor={'white'}
             graphData={data}
             nodeLabel="id"
             onNodeClick={handleClick}
             onNodeHover={()=>{}}
             cooldownTicks={100}
-            minZoom={1}
+            minZoom={3}
             maxZoom={10}
             centerAt={(0,0)}
             onEngineStop={() => {
               console.log(fgRef)
-              // fgRef.current.zoomToFit(400)
+              fgRef.current.zoomToFit(400)
             }}
           /> 
       </div>

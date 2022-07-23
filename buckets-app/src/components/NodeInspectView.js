@@ -177,6 +177,48 @@ const TransactionList = (props) => {
   )
 };
 
+const QuickInfoView = (props) => {
+  return (
+    <>
+      <h1>{props.node.name}</h1><br/>
+      <BalanceView
+          current_balance={props.node.current_balance}
+          income={props.income}
+          expenses={props.expenses}
+      />
+    </>
+  );
+};
+
+const FullInfoView = (props) => {
+  return (
+    <>
+      <h1>{props.node.name}</h1><br/>
+      <BalanceView
+          current_balance={props.node.current_balance}
+          income={props.income}
+          expenses={props.expenses}
+      />
+      <h2>Budget</h2>
+      <BudgetView
+          node={props.node}
+          nodes={props.nodes}
+          incoming_edges={props.incoming_edges}
+          outgoing_edges={props.outgoing_edges}
+          newEdgeFunction={props.newEdgeFunction}
+      />
+      <div>
+        <h2>Recent Transactions</h2>
+        {/* <TransactionList node={props.node.transactions}/>           */}
+        <ul>
+          <li>Mock Transaction for now</li>
+        </ul>
+      </div>
+    </>
+    
+  );
+};
+
 
 const inspectComponentStyle = {
   height: "100%",
@@ -201,27 +243,21 @@ class NodeInspectView extends React.Component {
     })
     return (
       <div style={inspectComponentStyle}>
-        <h1>{this.props.node.name}</h1><br/>
-        <BalanceView
-            current_balance={this.props.node.current_balance}
-            income={income}
-            expenses={expenses}
-        />
-        <h2>Budget</h2>
-        <BudgetView
+        {this.props.displayFullInfo === true ? 
+          <FullInfoView 
             node={this.props.node}
             nodes={this.props.nodes}
             incoming_edges={this.props.incoming_edges}
             outgoing_edges={this.props.outgoing_edges}
             newEdgeFunction={this.props.newEdgeFunction}
-        />
-        <div>
-          <h2>Recent Transactions</h2>
-          {/* <TransactionList node={props.node.transactions}/>           */}
-          <ul>
-            <li>Mock Transaction for now</li>
-          </ul>
-        </div>
+            income={income}
+            expenses={expenses}
+          /> :
+          <QuickInfoView 
+          node={this.props.node}
+          income={income}
+          expenses={expenses}
+          />}
       </div>
     )
   }
