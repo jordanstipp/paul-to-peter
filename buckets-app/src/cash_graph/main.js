@@ -24,6 +24,7 @@ class Graph {
 
     add_node(node) {
         this.nodes[node.id] = node;
+        // Migrate to Maps for more efficient edge deletion.
         this.edges_outgoing_index[node.id] = [];
         this.edges_incoming_index[node.id] = [];
     }
@@ -49,12 +50,50 @@ class Graph {
         console.log(this.edges_incoming_index)
     }
 
-    get_incoming_edges(node) {
-        return this.edges_incoming_index[node.id];
+    update_edge(edge_id, newAmount) {
+        let edge = this.edges[edge_id];
+        edge.amount = newAmount;
     }
 
-    get_outgoing_edges(node) {
-        return this.edges_outgoing_index[node.id];
+    remove_edge_id_from_array(edge_id, edge_array) {
+        let foundIndex = -1;
+        for (let i = 0; i < edge_array.length; i++) {
+            console.log(edge_array[i].id)
+            if (edge_array[i].id == edge_id){
+                foundIndex = i;
+                break;
+            }
+        }
+        if (foundIndex > -1) {
+            edge_array.splice(foundIndex, 1);
+        }
+        return edge_array;
+    }
+
+    remove_edge(edge_id) {
+        console.log('Removing edge_id: ' + edge_id)
+        if (this.edges[edge_id]){
+            let edge = this.edges[edge_id]
+            // Remove from the indexed array maps for source/destinations
+            let source_node_outgoing_edges = this.edges_outgoing_index[edge.source_id]
+            this.edges_outgoing_index[edge.source_id] = this.remove_edge_id_from_array(edge_id, source_node_outgoing_edges)
+            
+            let dest_node_incoming_edges = this.edges_incoming_index[edge.dest_id]
+            this.edges_incoming_index[edge.dest_id] = this.remove_edge_id_from_array(edge_id, dest_node_incoming_edges)
+            // Remove Edge object from graph.
+            delete this.edges[edge_id];
+            console.log('Deleted')
+            return true;
+        }
+        return false;
+    }
+
+    get_incoming_edges(node_id) {
+        return this.edges_incoming_index[node_id];
+    }
+
+    get_outgoing_edges(node_id) {
+        return this.edges_outgoing_index[node_id];
     }
 
 };
@@ -62,6 +101,7 @@ let globalGraph = new Graph();
 
 class Edge {
     constructor(source_id, dest_id, amount){
+        this.id = source_id + "_" + dest_id + "_" + amount
         this.source_id = source_id;
         this.dest_id = dest_id;
         this.amount = amount;

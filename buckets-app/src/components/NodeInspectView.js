@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import React, { useState } from 'react';
 import globalGraph from '../cash_graph/main';
 import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 
 const formStyle = {
   display: "flex",
@@ -53,7 +54,7 @@ const InputEdgeForm = (props) => {
       return(
         <div style={formStyle}>
             <form onSubmit={handleSubmit}>
-                <Select
+              <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={newEdgeState.targetNode}
@@ -108,6 +109,43 @@ const BalanceView = (props) => {
     )
 }
 
+const EdgeEditableFormDisplay = (props) => {
+  const [edgeAmount, setEdgeAmount] = useState(props.edge.amount)
+
+  const handleSubmit = event => {
+    props.updateEdgeAmountInGraph(props.edge.id, edgeAmount);
+    event.preventDefault();
+  };
+  return(
+    <li style={{width: "100%", maxHeight: "50%"}}>
+      <form style={{display:"flex", flexDirection:"row"}} onSubmit={handleSubmit}>
+        <h4 style={{minWidth: "30%"}}>
+          {props.name}
+        </h4>
+        <TextField 
+                  variant="outlined"
+                  onChange={(e)=>{setEdgeAmount(e.target.value)}}
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                  value={edgeAmount}
+                  style={{minWidth: "30%", minHeight: "50%"}}
+        ></TextField>
+        {edgeAmount === props.edge.amount ?
+          <></> :
+          <Button variant="contained" type='submit' size="small"
+            style={{maxWidth:"10%", backgroundColor: "green"}}>✓</Button>
+        }
+        <Button variant="contained" type='submit' size="small"
+            style={{maxWidth:"10%", backgroundColor: "grey"}}
+            onClick={(e)=>{
+              props.removeEdgeFromGraphFunction(props.edge.id);
+              e.preventDefault();
+            }}>x</Button>
+      </form>
+    </li>
+
+  )
+};
+
 
 const BudgetList = (props) => {
   return (
@@ -117,7 +155,13 @@ const BudgetList = (props) => {
         Object.keys(props.edges).map((key, index) => {
           let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
           return (
-            <li key={index}>{displayName} - {props.edges[key].amount}</li>
+            <EdgeEditableFormDisplay
+              key={index}
+              name={displayName}
+              edge={props.edges[key]}
+              updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+              removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
+            />
           )
         })
       }
@@ -129,7 +173,6 @@ const BudgetList = (props) => {
 class BudgetView extends React.Component {
   constructor(props){
     super(props)
-
   }
 
   render() {
@@ -137,7 +180,11 @@ class BudgetView extends React.Component {
       <div className='budget-view-box'>
         <div className='budget-column'>
           <h3>Income</h3>
-          <BudgetList edges={this.props.incoming_edges} incoming={true}/>
+          <BudgetList
+            edges={this.props.incoming_edges}
+            updateEdgeAmountInGraph={this.props.updateEdgeAmountInGraph}
+            removeEdgeFromGraphFunction={this.props.removeEdgeFromGraphFunction}
+            incoming={true}/>
           <InputEdgeForm
             node={this.props.node}
             nodes={this.props.nodes}
@@ -147,7 +194,11 @@ class BudgetView extends React.Component {
         </div>
         <div className='budget-column'>
           <h3>Expenses</h3>
-          <BudgetList edges={this.props.outgoing_edges} incoming={false}/>
+          <BudgetList
+            edges={this.props.outgoing_edges}
+            updateEdgeAmountInGraph={this.props.updateEdgeAmountInGraph}
+            removeEdgeFromGraphFunction={this.props.removeEdgeFromGraphFunction}
+            incoming={false}/>
           <InputEdgeForm
             node={this.props.node}
             nodes={this.props.nodes}
@@ -191,6 +242,7 @@ const QuickInfoView = (props) => {
 };
 
 const FullInfoView = (props) => {
+  
   return (
     <>
       <h1>{props.node.name}</h1><br/>
@@ -206,6 +258,8 @@ const FullInfoView = (props) => {
           incoming_edges={props.incoming_edges}
           outgoing_edges={props.outgoing_edges}
           newEdgeFunction={props.newEdgeFunction}
+          updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+          removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
       />
       <div>
         <h2>Recent Transactions</h2>
@@ -219,6 +273,21 @@ const FullInfoView = (props) => {
   );
 };
 
+function calculate_income(incoming_edges) {
+  let income = 0
+  incoming_edges.forEach(edge => {
+    income += parseInt(edge.amount);
+  })
+  return income
+};
+
+function calculate_expenses(outgoing_edges) {
+  let expenses = 0;
+  outgoing_edges.forEach(edge => {
+    expenses += parseInt(edge.amount);
+  })
+  return expenses;
+};
 
 const inspectComponentStyle = {
   height: "100%",
@@ -229,27 +298,29 @@ const inspectComponentStyle = {
 class NodeInspectView extends React.Component {
   constructor(props) {
     super(props);
+    console.log(this.props.data)
+    this.state = {
+      versionGraph: this.props.data
+    };
   }
 
   render() {
-    let income = 0
-    this.props.incoming_edges.forEach(edge => {
-      income += parseInt(edge.amount);
-    })
+    console.log(this.props.incoming_edges)
+    let income = calculate_income(this.props.incoming_edges)
+    let expenses = calculate_expenses(this.props.outgoing_edges)
 
-    let expenses = 0;
-    this.props.outgoing_edges.forEach(edge => {
-      expenses += parseInt(edge.amount);
-    })
     return (
       <div style={inspectComponentStyle}>
         {this.props.displayFullInfo === true ? 
-          <FullInfoView 
+          <FullInfoView
+            versionGraph={this.state.versionGraph}
             node={this.props.node}
             nodes={this.props.nodes}
             incoming_edges={this.props.incoming_edges}
             outgoing_edges={this.props.outgoing_edges}
             newEdgeFunction={this.props.newEdgeFunction}
+            updateEdgeAmountInGraph={this.props.updateEdgeAmountInGraph}
+            removeEdgeFromGraphFunction={this.props.removeEdgeFromGraphFunction}
             income={income}
             expenses={expenses}
           /> :
@@ -264,3 +335,4 @@ class NodeInspectView extends React.Component {
 };
 
 export default NodeInspectView;
+
