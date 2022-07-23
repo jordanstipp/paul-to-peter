@@ -111,13 +111,17 @@ const BalanceView = (props) => {
 
 const EdgeEditableFormDisplay = (props) => {
   const [edgeAmount, setEdgeAmount] = useState(props.edge.amount)
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleSubmit = event => {
     props.updateEdgeAmountInGraph(props.edge.id, edgeAmount);
     event.preventDefault();
   };
   return(
-    <li style={{width: "100%", maxHeight: "50%"}}>
+    <li style={{width: "100%", maxHeight: "50%"}}
+      onMouseEnter={()=>setIsHovered(true)}
+      onMouseLeave={()=>setIsHovered(false)}
+    >
       <form style={{display:"flex", flexDirection:"row"}} onSubmit={handleSubmit}>
         <h4 style={{minWidth: "30%"}}>
           {props.name}
@@ -134,12 +138,15 @@ const EdgeEditableFormDisplay = (props) => {
           <Button variant="contained" type='submit' size="small"
             style={{maxWidth:"10%", backgroundColor: "green"}}>✓</Button>
         }
-        <Button variant="contained" type='submit' size="small"
+        {isHovered ?
+          <Button variant="contained" type='submit' size="small"
             style={{maxWidth:"10%", backgroundColor: "grey"}}
             onClick={(e)=>{
               props.removeEdgeFromGraphFunction(props.edge.id);
               e.preventDefault();
-            }}>x</Button>
+            }}>x</Button> : <></>
+        }
+        
       </form>
     </li>
 
@@ -156,7 +163,7 @@ const BudgetList = (props) => {
           let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
           return (
             <EdgeEditableFormDisplay
-              key={index}
+              key={props.edges[key].id}
               name={displayName}
               edge={props.edges[key]}
               updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}

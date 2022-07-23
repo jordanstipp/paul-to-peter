@@ -23,8 +23,8 @@ const GraphDisplay = (props) => {
       <NodeInspectView
           node={props.focusNode}
           nodes={props.data.get_nodes()}
-          incoming_edges={props.data.get_incoming_edges(props.focusNode)}
-          outgoing_edges={props.data.get_outgoing_edges(props.focusNode)}
+          incoming_edges={props.incoming_edges}
+          outgoing_edges={props.outgoing_edges}
           newEdgeFunction={props.newEdgeFunction}
           displayFullInfo={false}
         />
@@ -111,6 +111,8 @@ function App() {
            <GraphDisplay 
             data={data}
             focusNode={focusNode}
+            incoming_edges={data.get_incoming_edges(focusNode.id)}
+            outgoing_edges={data.get_outgoing_edges(focusNode.id)}
             newEdgeFunction={newEdgeFunction}
             handleNodeFocusClick={handleNodeFocusClick}
            />:
