@@ -55,8 +55,8 @@ const NodeList = (props) => {
     return (
       <List style={listStyle}>
         {
-          Object.keys(props.nodes).map((content, index) => {
-              const node = props.nodes[index]
+          Object.keys(props.nodes).map((key, index) => {
+              const node = props.nodes[key]
               return (
                 <ListItem key={index}><NodeViewCard node={node} handleClick={props.handleClick}/></ListItem>
               )
@@ -74,14 +74,6 @@ const searchStyle = {
 };
 
 const SearchBar = (props) => {
-  function filter_nodes_by_category(category) {
-    const nodesInCategory = props.allNodes.filter(node => node.type === category || category === 'All')
-    props.setDisplayNodes(nodesInCategory)
-  }
-  function filter_nodes_by_str(substr) {
-    const nodesInCategory = props.allNodes.filter(node => node.name.toLowerCase().indexOf(substr.toLowerCase()) !== -1)
-    props.setDisplayNodes(nodesInCategory)
-  }
   return (
     <form style={searchStyle}>
       <TextField 
@@ -89,7 +81,7 @@ const SearchBar = (props) => {
         className='text'
         onInput={(e)=>{
           console.log(e.target.value)
-          filter_nodes_by_str(e.target.value)
+          props.filterNodesByStr(e.target.value)
         }}
         label="Node name"
         variant="outlined"
@@ -103,12 +95,12 @@ const SearchBar = (props) => {
       <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={props.category}
+          value={props.currentCategory}
           label="Category"
           onChange={(e)=>{
             console.log(e.target.value)
-            filter_nodes_by_category(e.target.value)
             props.setCategory(e.target.value)
+            props.filterNodesByCategory(e.target.value)
           }}
           style={{width: "30%", minHeight: "100%"}}
       >
@@ -134,14 +126,15 @@ const quickViewStyle = {
 }
 
 const NodeQuickView = (props) => {
-  const [displayedNodes, setDisplayedNodesState] = useState(props.nodes)
-  const [currentCategory, setCurrentCategory] = useState('All')
-
   return (
     <div style={quickViewStyle}>
-      <SearchBar allNodes={props.nodes} setDisplayNodes={setDisplayedNodesState}
-                 categories={props.categories} setCategory={setCurrentCategory} category={currentCategory}/>
-      <NodeList nodes={displayedNodes} handleClick={props.handleClick}></NodeList>
+      <SearchBar allNodes={props.displayedNodes} 
+                 categories={props.categories}
+                 setCategory={props.setCurrentCategory}
+                 currentCategory={props.currentCategory}
+                 filterNodesByCategory={props.filterNodesByCategory}
+                 filterNodesByStr={props.filterNodesByStr}/>
+      <NodeList nodes={props.displayedNodes} handleClick={props.handleClick}></NodeList>
     </div>
   )
 

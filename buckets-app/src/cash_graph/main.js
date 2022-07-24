@@ -2,12 +2,13 @@ const default_user_id = 'DefaultUser';
 const DEFAULT_NODE_TYPES = ['User', 'Investment', 'Expense', 'Savings', 'Income Source', 'All']
 
 export class Graph {
-    constructor() {
+    constructor(graphID=default_user_id) {
         this.nodes = {};
         this.edges = {};
         this.edges_outgoing_index = {};
         this.edges_incoming_index = {};
         this.node_types = DEFAULT_NODE_TYPES;
+        this.graph_id = graphID
     }
 
     get_nodes() {
@@ -29,8 +30,9 @@ export class Graph {
         this.edges_incoming_index[node.id] = [];
     }
 
-    add_new_edge_to_graph(sourceID, destinationID, amount){
-        let _ = new Edge(sourceID, destinationID, amount)
+    add_new_edge_to_graph(sourceID, destinationID, amount, desc=''){
+        let new_edge = new Edge(sourceID, destinationID, amount, desc)
+        this.add_edge(new_edge);
     }
 
     get_edges() {
@@ -99,24 +101,23 @@ export class Graph {
 };
 
 export class Edge {
-    constructor(graph, source_id, dest_id, amount){
+    constructor(source_id, dest_id, amount, desc=''){
         this.id = source_id + "_" + dest_id + "_" + amount
         this.source_id = source_id;
         this.dest_id = dest_id;
         this.amount = amount;
-        graph.add_edge(this);
+        this.desc = desc
     }
 }
 
 export class Node {
-    constructor(graph, name, type='default', current_balance=0.0) {
+    constructor(name, type='default', current_balance=0.0) {
         this.id = name;
         this.name = name;
         this.current_balance = current_balance;
         this.type = type;
         this.user_id = default_user_id;
         this.transactions = [];
-        graph.add_node(this);
     }
 
     outflows() {

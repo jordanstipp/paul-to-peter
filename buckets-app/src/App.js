@@ -1,14 +1,21 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import userGraph from './cash_graph/mekhi.js';
+import complexUserGraph from './cash_graph/complex_user.js';
+import mockUserGraph from './cash_graph/mock_user.js';
+import blankGraph from './cash_graph/blank.js';
 import Button from '@mui/material/Button';
 
 import NodeQuickView from './components/NodeQuickView';
 import NodeInspectView from './components/NodeInspectView';
 import CashGraphView from './components/CashGraphView';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import { InputLabel } from '@mui/material';
 
-let globalGraph = userGraph;
+
 
 const graphDisplayStyle = {
   display: "flex",
@@ -45,15 +52,38 @@ function App() {
   const [focusNode, setFocusNode] = useState({});
   const [isLoading, setLoading] = useState(true);
   const [showGraph, seeGraphView] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState('All');
+  const [displayedNodes, setDisplayedNodes] = useState({});
+
+  function setStatesWithGraph(cashGraph) {
+    setData(cashGraph);
+    const default_display_node_id = Object.keys(cashGraph.nodes)[0]
+    setFocusNode(cashGraph.nodes[default_display_node_id]);
+    setDisplayedNodes(cashGraph.nodes)
+    setRefreshGraphToggle(!refreshGraphToggle);
+  };
 
   /**Loads the data from backend (which doesnt exist today) */
   useEffect(() => {
     console.log('Effect Executing');
-    setData(globalGraph);
-    const default_display_node_id = Object.keys(globalGraph.nodes)[0]
-    setFocusNode(globalGraph.nodes[default_display_node_id]);
+    setStatesWithGraph(mockUserGraph)
     setLoading(false);
   }, []);
+
+  /** Hard Coded Graph Values.
+   *  TODO(mjones): Change to dynamically load these values.
+  */
+  const AvailableGraphs = {}
+  AvailableGraphs[mockUserGraph.graph_id]= mockUserGraph
+  AvailableGraphs[complexUserGraph.graph_id]= complexUserGraph
+  AvailableGraphs[blankGraph.graph_id]= blankGraph
+
+  /**Toggle between available graphs */
+  function changeDisplayedGraph(e){
+    const newGraph = AvailableGraphs[e.target.value];
+    console.log(newGraph)
+    setStatesWithGraph(newGraph)
+  }
 
   /**Handle a node focus event. */
   function handleNodeFocusClick(node) {
@@ -71,7 +101,7 @@ function App() {
     setRefreshGraphToggle(!refreshGraphToggle);
   }
 
-  /**Updates an existing edge in the grap\h */
+  /**Updates an existing edge in the graph */
   function updateEdgeAmountInGraph(edge_id, amount) {
     console.log(edge_id);
     console.log(amount);
@@ -86,20 +116,57 @@ function App() {
     setRefreshGraphToggle(!refreshGraphToggle);
   }
 
+  /**Filter the Nodes displayed on the screen by category. */
+  function filterNodesByCategory(category) {
+    const nodesInCategory = Object.fromEntries(Object.entries(data.nodes).filter(([key, node]) => node.type === category || category === 'All'))
+    setDisplayedNodes(nodesInCategory)
+  }
+
+  function filterNodesByStr(substr) {
+    const nodesInCategory = Object.fromEntries(Object.entries(data.nodes).filter(([key, node]) => node.name.toLowerCase().indexOf(substr.toLowerCase()) !== -1))
+    setDisplayedNodes(nodesInCategory)
+  }
+
   /**Render the app. */
   if (isLoading) {
     return <div className="App">Loading..</div>
   }
-  console.log(data.get_incoming_edges(focusNode.id));
   return (
     <>
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
     <h1>Welcome to your financial health</h1>
+    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+      <InputLabel id="demo-select-small">Available Graphs</InputLabel>
+      <Select
+              labelId="demo-simple-select-label-small"
+              id="demo-simple-select-small"
+              label="Available Graphs"
+              value={data.graph_id}
+              onChange={changeDisplayedGraph}
+              style={{minWidth: "40%"}}
+          >
+            {
+              Object.keys(AvailableGraphs).map((key, i) => {
+                const val = AvailableGraphs[key].graph_id
+                return (
+                  <MenuItem key={val} value={val}>{val}</MenuItem>
+                )
+              })
+            }
+      </Select>
+    </FormControl>
+    </div>
+
     <div className="dev-area">
       <div className="info-side">
         <NodeQuickView
-          nodes={data.get_nodes()}
+          displayedNodes={displayedNodes}
           handleClick={handleNodeFocusClick}
           categories={data.node_types}
+          currentCategory={currentCategory}
+          setCurrentCategory={setCurrentCategory}
+          filterNodesByCategory={filterNodesByCategory}
+          filterNodesByStr={filterNodesByStr}
         />
       </div>
       <div className="inspect-side">

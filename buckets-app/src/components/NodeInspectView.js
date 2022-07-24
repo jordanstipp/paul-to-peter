@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import globalGraph from '../cash_graph/main';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
+import List from '@mui/material/List';
+
 
 const formStyle = {
   display: "flex",
@@ -119,7 +121,7 @@ const EdgeEditableFormDisplay = (props) => {
     event.preventDefault();
   };
   return(
-    <li style={{width: "100%", maxHeight: "50%"}}
+    <li style={{width: "100%", maxHeight: "50%", borderBottom: "1px solid black"}}
       onMouseEnter={()=>setIsHovered(true)}
       onMouseLeave={()=>setIsHovered(false)}
     >
@@ -127,6 +129,7 @@ const EdgeEditableFormDisplay = (props) => {
         <h4 style={{minWidth: "30%"}}>
           {props.name}
         </h4>
+        <h5>{props.edge.desc}</h5>
         <TextField 
                   variant="outlined"
                   onChange={(e)=>{setEdgeAmount(e.target.value)}}
@@ -141,7 +144,7 @@ const EdgeEditableFormDisplay = (props) => {
         }
         {isHovered ?
           <Button variant="contained" type='submit' size="small"
-            style={{maxWidth:"10%", backgroundColor: "grey"}}
+            style={{maxWidth:"5%", backgroundColor: "grey"}}
             onClick={(e)=>{
               props.removeEdgeFromGraphFunction(props.edge.id);
               e.preventDefault();
@@ -154,30 +157,46 @@ const EdgeEditableFormDisplay = (props) => {
   )
 };
 
-
+const budgetListStyle= {
+  maxHeight: "60%",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "auto",
+  alignContent: "left",
+};
 const BudgetList = (props) => {
   return (
-    <div>
-      <ul>
-      {
-        Object.keys(props.edges).map((key, index) => {
-          let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
-          return (
-            <EdgeEditableFormDisplay
-              key={props.edges[key].id}
-              name={displayName}
-              edge={props.edges[key]}
-              updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
-              removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
-            />
-          )
-        })
-      }
-      </ul>
-    </div>
+    <List style={budgetListStyle}>
+    {
+      Object.keys(props.edges).map((key, index) => {
+        let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
+        return (
+          <EdgeEditableFormDisplay
+            key={props.edges[key].id}
+            name={displayName}
+            edge={props.edges[key]}
+            updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+            removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
+          />
+        )
+      })
+    }
+    </List>
   );
 }
 
+const BudgetViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  height: "100%"
+}
+
+const BudgetViewColumnStyle = {
+  height: "100%",
+  width: "48%",
+  marginRight: "1%"
+}
 class BudgetView extends React.Component {
   constructor(props){
     super(props)
@@ -185,8 +204,8 @@ class BudgetView extends React.Component {
 
   render() {
     return(
-      <div className='budget-view-box'>
-        <div className='budget-column'>
+      <div style={BudgetViewStyle}>
+        <div style={BudgetViewColumnStyle}>
           <h3>Income</h3>
           <BudgetList
             edges={this.props.incoming_edges}
@@ -200,7 +219,7 @@ class BudgetView extends React.Component {
             incoming={true}
           />
         </div>
-        <div className='budget-column'>
+        <div style={BudgetViewColumnStyle}>
           <h3>Expenses</h3>
           <BudgetList
             edges={this.props.outgoing_edges}
@@ -249,18 +268,26 @@ const QuickInfoView = (props) => {
   );
 };
 
+const fullInfoStyle = {
+  height: "100%",
+  display: "flex",
+  flexDirection: "column"
+};
 const FullInfoView = (props) => {
   
   return (
-    <>
-      <h1>{props.node.name}</h1><br/>
-      <BalanceView
-          current_balance={props.node.current_balance}
-          income={props.income}
-          expenses={props.expenses}
-      />
-      <h2>Budget</h2>
-      <BudgetView
+    <div style={fullInfoStyle}>
+      <div style={{maxHeight: "30%", marginBottom:"0", paddingBottom: 0}}>
+        <h1>{props.node.name}</h1>
+        <BalanceView
+            current_balance={props.node.current_balance}
+            income={props.income}
+            expenses={props.expenses}
+        />
+      </div>
+      <div style={{maxHeight: "50%"}}>
+        <h2>Budget</h2>
+        <BudgetView
           node={props.node}
           nodes={props.nodes}
           incoming_edges={props.incoming_edges}
@@ -268,15 +295,17 @@ const FullInfoView = (props) => {
           newEdgeFunction={props.newEdgeFunction}
           updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
           removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
-      />
-      <div>
+        />
+      </div>
+      
+      <div style={{maxHeight: "20%"}}>
         <h2>Recent Transactions</h2>
         {/* <TransactionList node={props.node.transactions}/>           */}
         <ul>
           <li>Mock Transaction for now</li>
         </ul>
       </div>
-    </>
+    </div>
     
   );
 };
@@ -306,14 +335,12 @@ const inspectComponentStyle = {
 class NodeInspectView extends React.Component {
   constructor(props) {
     super(props);
-    console.log(this.props.data)
     this.state = {
       versionGraph: this.props.data
     };
   }
 
   render() {
-    console.log(this.props.incoming_edges)
     let income = calculate_income(this.props.incoming_edges)
     let expenses = calculate_expenses(this.props.outgoing_edges)
 
