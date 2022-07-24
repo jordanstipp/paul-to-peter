@@ -1,7 +1,7 @@
 import {Graph, User, IncomeSource, Investment, Edge, Expense} from './main.js';
 let userGraph = new Graph('Simple Demo User');
 
-let user = new User('Self_User', 'User', 0);
+let user = new User('Self_User', 0);
 userGraph.add_node(user);
 
 let nuro = new IncomeSource('Nuro', user.id, 1000000);
