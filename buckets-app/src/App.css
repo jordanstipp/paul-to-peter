@@ -65,14 +65,5 @@ html, body {
   margin-top: 0px;
 }
 
-.budget-view-box {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.budget-column {
-  width: 50%;
-}
 
 
