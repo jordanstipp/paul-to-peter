@@ -1,70 +1,21 @@
-# Getting Started with Create React App
+# Buckets React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Every great backend needs a good frontend, so here we are. 
 
-## Available Scripts
+Some ground rules for organization
+- Follow your typical design rules 
+    - Keep complex logic as high as possible. Components should have few data transformation functions, only inner component state changes. 
+- Style  each file component (larger and composed of many smaller components) with a const style defined outside. Only use inline styling for few (<=3 properties)
 
-In the project directory, you can run:
+## Architecture
+Currently this app has two main components
 
-### `npm start`
+### Backend and State Data Handling 
+Today, the backend is simply object files defined in cash_graph/. These will one day will GraphQL data fetches associated with userProfiles. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+When data is loaded, we use an in-memory graph class to the the relate the data without continual fetches. This graph has the list of nodes and edges, as well as two in-memory indexed maps for the destination and source nodes. This is useful only until the GraphQL database is implemented. 
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The API layer and class definition to the Graph can be found in cash_graph/main.js.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### FrontEnd Components
+MaterialUi components are mainly leaned on here. You may find some demo references around during the initial bringup here. Please mind the ramp up. 
