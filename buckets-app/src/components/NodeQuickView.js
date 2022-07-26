@@ -3,6 +3,7 @@ import { CardContent } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import IconButton from "@mui/material/IconButton";
@@ -14,24 +15,105 @@ import React, { useState } from 'react';
 
 
 
+const FormStyle = {
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+};
+const NewNodeForm = (props) => {
+    const [nodeName, setNodeName] = useState('');
+    const [currentCategory, setCurrentCategory] = useState(props.categories[0]);
+    const [currentBalance, setCurrentBalance] = useState(0);
+
+    return(
+        <form style={FormStyle} onSubmit={()=>{}}>
+            <h2>
+              Add a new node to the graph
+            </h2>
+            <TextField
+                id="node-name"
+                className="text"
+                onInput={(e)=>{
+                    console.log(e.target.value)
+                    setNodeName(e.target.value)
+                }}
+                label="Node name"
+                variant="outlined"
+                value={nodeName}
+                placeholder="Node name"
+                size="medium"
+            />
+            <NodeCategorySelect 
+              currentCategory={currentCategory}
+              setCategory={setCurrentCategory}
+              onChange={(e)=>{
+                console.log(e.target.value)
+                setCurrentCategory(e.target.value)
+              }}
+              filterNodesByCategory={props.filterNodesByCategory}
+              categories={props.categories}
+            />
+            <div style={{display:"flex", flexDirection:"row", justifyContent: "space-between", maxHeight: "15%"}}>
+              <InputLabel style={{height: "50px", lineHeight: "50px", textAlign:"center"}}>Current Balance</InputLabel>
+              <TextField
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                value={currentBalance}
+                onInput={(e)=>{
+                  console.log(e.target.value)
+                  setCurrentBalance(e.target.value)
+              }}
+              />
+            </div>
+            <Button onClick={(e)=>{
+              console.log('submit new node')
+              props.addNodeFunction(nodeName, currentCategory, currentBalance)
+              props.toggleNodeForm()
+              e.preventDefault()
+            }}>
+                Add new Node
+            </Button>
+        </form>
+    );
+};
+
+const NodeCategorySelect = (props) => {
+  return (
+    <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={props.currentCategory}
+          label="Category"
+          onChange={props.onChange}
+          style={props.style}
+      >
+        {
+          Object.keys(props.categories).map((key, i) => {
+            const val = props.categories[key]
+            return (
+              <MenuItem key={val} value={val}>{val}</MenuItem>
+            )
+          })
+        }
+    </Select>
+  )
+}
+
+
 const cardStyle = {
   width: "90%",
-  maxHeight: "15%",
+  maxHeight: "8%",
   alignContent: "center",
 };
 
 const NodeViewCard = (props) => {
     return (<Card variant="outlined" sx={cardStyle}>
           <CardContent>
-            <Typography variant="h9" gutterBottom>
+            <Typography variant="h10" gutterBottom>
               Type: {props.node.type}
             </Typography>
-            <Typography variant="h3">
+            <Typography variant="h5">
               {props.node.name}
             </Typography> 
-            <Typography variant="h5">
-              Current balance: ${props.node.current_balance}
-            </Typography>       
           </CardContent>
           <CardActions>
             <Button size="small" onClick={()=>{
@@ -48,7 +130,8 @@ const listStyle = {
   height: "100%",
   alignContent: "left",
   maxHeight: "100%", 
-  overflow: "auto"
+  overflow: "auto",
+  flex: "1"
 };
 
 const NodeList = (props) => {
@@ -68,7 +151,7 @@ const NodeList = (props) => {
 
 const searchStyle = {
   width: "100%",
-  height: "10%",
+  minHeight: "15%",
   display: "flex",
   flexDirection: "row"
 };
@@ -76,44 +159,32 @@ const searchStyle = {
 const SearchBar = (props) => {
   return (
     <form style={searchStyle}>
-      <TextField 
-        id="search-bar"
-        className='text'
-        onInput={(e)=>{
-          console.log(e.target.value)
-          props.filterNodesByStr(e.target.value)
-        }}
-        label="Node name"
-        variant="outlined"
-        placeholder="Search"
-        size="large"
-        style={{minHeight: "100%", flex: 1}}
-      />
-      <IconButton  type="submit" aria-label="search">
-        {/* <SearchIcon style={{fill: "blue"}} /> */}
-      </IconButton>
-      <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={props.currentCategory}
-          label="Category"
+        <TextField 
+          id="search-bar"
+          className='text'
+          onInput={(e)=>{
+            console.log(e.target.value)
+            props.filterNodesByStr(e.target.value)
+          }}
+          label="Node name"
+          variant="outlined"
+          placeholder="Search"
+          size="large"
+          style={{minHeight: "100%", flex: 1}}
+        />
+        <IconButton  type="submit" aria-label="search" />
+        <NodeCategorySelect 
+          currentCategory={props.currentCategory}
+          setCategory={props.setCategory}
+          filterNodesByCategory={props.filterNodesByCategory}
+          categories={props.categories}
           onChange={(e)=>{
             console.log(e.target.value)
             props.setCategory(e.target.value)
             props.filterNodesByCategory(e.target.value)
           }}
           style={{width: "30%", minHeight: "100%"}}
-      >
-        {
-          Object.keys(props.categories).map((key, i) => {
-            const val = props.categories[key]
-            return (
-              <MenuItem key={val} value={val}>{val}</MenuItem>
-            )
-          })
-        }
-        </Select>
-        <Button variant="contained" type='submit' size="small">+</Button>
+        />
     </form>
   )
 }
@@ -126,15 +197,40 @@ const quickViewStyle = {
 }
 
 const NodeQuickView = (props) => {
+  const [newNodeMode, toggleNewNodeMode] = useState(false);
+  function toggleNodeForm(){
+    toggleNewNodeMode(!newNodeMode);
+  }
   return (
     <div style={quickViewStyle}>
-      <SearchBar allNodes={props.displayedNodes} 
-                 categories={props.categories}
-                 setCategory={props.setCurrentCategory}
-                 currentCategory={props.currentCategory}
-                 filterNodesByCategory={props.filterNodesByCategory}
-                 filterNodesByStr={props.filterNodesByStr}/>
-      <NodeList nodes={props.displayedNodes} handleClick={props.handleClick}></NodeList>
+      <div style={{display: "flex", flexDirection: "row", minHeight: "10%", justifyContent: "space-between"}}>
+        {newNodeMode ? <div style={{width: "60%"}}></div>:
+          <SearchBar 
+            allNodes={props.displayedNodes} 
+            categories={props.categories}
+            setCategory={props.setCurrentCategory}
+            currentCategory={props.currentCategory}
+            filterNodesByCategory={props.filterNodesByCategory}
+            filterNodesByStr={props.filterNodesByStr}
+            newNodeMode={newNodeMode}
+          />
+        }
+        <Button variant="contained" type='submit' size="small"
+            onClick={(e)=>{
+              toggleNodeForm();
+              e.preventDefault();}}
+        >+</Button>
+      </div>
+      {newNodeMode ?
+        <NewNodeForm
+          addNodeFunction={props.addNodeFunction}
+          currentCategory={props.currentCategory}
+          setCategory={props.setCategory}
+          filterNodesByCategory={props.filterNodesByCategory}
+          categories={props.categories}
+          toggleNodeForm={toggleNodeForm}
+        /> :
+        <NodeList nodes={props.displayedNodes} handleClick={props.handleClick}></NodeList>}
     </div>
   )
 
