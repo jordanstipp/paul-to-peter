@@ -92,6 +92,11 @@ function App() {
     setFocusNode(data.get_node(id));
   };
 
+  /**Adds a new node to the graph */
+  function addNodeFunction(name, type, current_balance){
+    data.add_node_to_graph(name, type, current_balance)
+  }
+
   /**Adds a new edge to the graph. */
   function newEdgeFunction(sourceID, destinationID, amount){
     console.log('New edge being added from ' + sourceID + "->" + destinationID + "of amont: " + amount)
@@ -167,6 +172,7 @@ function App() {
           setCurrentCategory={setCurrentCategory}
           filterNodesByCategory={filterNodesByCategory}
           filterNodesByStr={filterNodesByStr}
+          addNodeFunction={addNodeFunction}
         />
       </div>
       <div className="inspect-side">

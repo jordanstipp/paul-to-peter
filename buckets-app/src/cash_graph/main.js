@@ -23,6 +23,11 @@ export class Graph {
         return this.nodes[node_id];
     }
 
+    add_node_to_graph(name, type, current_balance){
+        let node = new Node(name, type, current_balance);
+        this.add_node(node);
+    }
+
     add_node(node) {
         this.nodes[node.id] = node;
         // Migrate to Maps for more efficient edge deletion.
