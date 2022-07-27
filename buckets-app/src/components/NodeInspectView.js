@@ -8,6 +8,14 @@ import globalGraph from '../cash_graph/main';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 import List from '@mui/material/List';
+import ListSubheader from '@mui/material/ListSubheader';
+import ListItemButton from '@mui/material/ListItemButton';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import ListItemText from '@mui/material/ListItemText';
+
+
 
 
 const formStyle = {
@@ -157,6 +165,48 @@ const EdgeEditableFormDisplay = (props) => {
   )
 };
 
+const NestedBudgetListItem = (props) => {
+  const [open, setOpen] = React.useState(false);
+  const handleClick = () => {
+    setOpen(!open);
+  }
+  let total = 0;
+  props.edge_list.map((edge) => {total += edge.amount});
+  return (
+    <List>
+      <ListItemButton onClick={handleClick}>
+        <ListItemText primary={props.displayName} />
+        {open ?
+          <ListItemText primary={"x"}/>
+          :<ListItemButton>
+              <ListItemText primary={
+              "$" + total + " (" + props.edge_list.length + ")"}/>
+              <ListItemButton size="small">+</ListItemButton>
+          </ListItemButton>
+          }
+      </ListItemButton>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component ="div" disablePadding>
+          {
+            props.edge_list.map((edge)=>{
+              const sub_edge_name = edge.desc
+              return (
+                <EdgeEditableFormDisplay
+                  key={edge.id}
+                  name={''}
+                  edge={edge}
+                  updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+                  removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
+                />
+              );
+            })
+          }
+        </List>
+      </Collapse>
+    </List>
+  );
+};
+
 const budgetListStyle= {
   maxHeight: "60%",
   display: "flex",
@@ -165,20 +215,46 @@ const budgetListStyle= {
   alignContent: "left",
 };
 const BudgetList = (props) => {
+  const node_groups = props.edges.reduce((node_groups, item)=>{
+    const grouping_property = props.incoming ? item.source_id : item.dest_id;
+    const node_group = (node_groups[grouping_property] || []);
+    node_group.push(item);
+    node_groups[grouping_property] = node_group;
+    return node_groups;
+  }, {});
+  console.log(node_groups);
   return (
-    <List style={budgetListStyle}>
+    <List
+      style={budgetListStyle}
+      aria-labelledby="nested-list-subheader"
+    >
     {
-      Object.keys(props.edges).map((key, index) => {
-        let displayName = props.incoming ? props.edges[key].source_id : props.edges[key].dest_id
-        return (
-          <EdgeEditableFormDisplay
-            key={props.edges[key].id}
-            name={displayName}
-            edge={props.edges[key]}
+      Object.keys(node_groups).map((key, index) => {
+
+        let displayName = key;
+        const edge_list = node_groups[key]
+        console.log(edge_list);
+        
+        return (edge_list.length > 1 ?
+          <NestedBudgetListItem
+            incoming={props.incoming}
+            edge_list={edge_list}
+            displayName={displayName}
             updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
             removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
-          />
+          />:
+          <ListItemButton>
+            <EdgeEditableFormDisplay
+              key={edge_list[0].id}
+              name={displayName}
+              edge={edge_list[0]}
+              updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+              removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
+            />
+          </ListItemButton>
+        
         )
+    
       })
     }
     </List>
