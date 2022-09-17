@@ -14,13 +14,13 @@ import FormControl from '@mui/material/FormControl';
 import { InputLabel } from '@mui/material';
 import { Provider, createStore } from 'react-redux'
 import store from './store'
-import { setGraph, addNode } from './slices/graphSlice';
+import { setGraph, addNode, addEdge} from './slices/graphSlice';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import blankGraph from './cash_graph/blank.js';
 import complexUserGraph from './cash_graph/complex_user.js';
 import mockUserGraph from './cash_graph/mock_user.js';
-import { Node } from './cash_graph/main.js';
+import { Node, Edge } from './cash_graph/main.js';
 
 const graphDisplayStyle = {
   display: "flex",
@@ -30,12 +30,10 @@ const GraphDisplay = (props) => {
   return(
     <div>
       <CashGraphView 
-          handleNodeFocusClick={props.handleNodeFocusClick}
           nodes={props.graph.get_nodes()}
           edges={props.graph.get_edges()}
       />
       <NodeInspectView
-          node={props.focusNode}
           nodes={props.graph.get_nodes()}
           incoming_edges={props.incoming_edges}
           outgoing_edges={props.outgoing_edges}
@@ -49,6 +47,7 @@ const GraphDisplay = (props) => {
 function App() {
   const graph = useSelector((state)=> state.graph.graph)
   const displayedNodes_redux = useSelector((state)=>state.graph.displayed_nodes)
+  
   const dispatch = useDispatch()
   // const [graph, setgraph] = useState({});
   /**
@@ -62,19 +61,10 @@ function App() {
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showGraph, seeGraphView] = useState(false);
   const [currentCategory, setCurrentCategory] = useState('All');
-  const [displayedNodes, setDisplayedNodes] = useState({});
 
-  function setStatesWithGraph(cashGraph) {
-    // dispatch(setGraph(cashGraph));
-    const default_display_node_id = Object.keys(cashGraph.nodes)[0]
-    setFocusNode(cashGraph.nodes[default_display_node_id]);
-    setDisplayedNodes(cashGraph.nodes)
-    setRefreshGraphToggle(!refreshGraphToggle);
-  };
 
   useEffect(() => {
     console.log('Effect Executing');
-    setStatesWithGraph(graph)
     setLoading(false);
   }, []);
 
@@ -93,7 +83,6 @@ function App() {
   function changeDisplayedGraph(e){
     const newGraph = AvailableGraphs[e.target.value];
     console.log(newGraph)
-    setStatesWithGraph(newGraph)
   }
 
   /**Publish Graph to persistent storage */
@@ -106,6 +95,7 @@ function App() {
   function handleNodeFocusClick(node) {
     console.log(node);
     let id = node.id;
+    dispatch(setFocusNode(id))
     setFocusNode(graph.get_node(id));
   };
 
@@ -117,11 +107,12 @@ function App() {
   }
 
   /**Adds a new edge to the graph. */
-  function newEdgeFunction(sourceID, destinationID, amount){
+  function newEdgeFunction(sourceID, destinationID, amount, desc){
     console.log('New edge being added from ' + sourceID + "->" + destinationID + "of amont: " + amount)
     console.log(sourceID)
     console.log(destinationID)
-    graph.add_new_edge_to_graph(sourceID, destinationID, amount)
+    const edge = new Edge(sourceID, destinationID, amount, desc)
+    dispatch(addEdge(edge))
     setRefreshGraphToggle(!refreshGraphToggle);
     setUnsavedChanges(true);
   }
@@ -183,7 +174,6 @@ function App() {
       <div className="info-side">
         <NodeQuickView
           displayedNodes={displayedNodes_redux}
-          handleClick={handleNodeFocusClick}
           categories={graph.node_types}
           currentCategory={currentCategory}
           setCurrentCategory={setCurrentCategory}
@@ -200,18 +190,16 @@ function App() {
         {showGraph ? 
            <GraphDisplay 
             graph={graph}
-            focusNode={focusNode}
-            incoming_edges={graph.get_incoming_edges(focusNode.id)}
-            outgoing_edges={graph.get_outgoing_edges(focusNode.id)}
+            incoming_edges={[]}
+            outgoing_edges={[]}
             newEdgeFunction={newEdgeFunction}
             handleNodeFocusClick={handleNodeFocusClick}
            />:
           <NodeInspectView
             graph={graph}
-            node={focusNode}
             nodes={graph.get_nodes()}
-            incoming_edges={graph.get_incoming_edges(focusNode.id)}
-            outgoing_edges={graph.get_outgoing_edges(focusNode.id)}
+            incoming_edges={[]}
+            outgoing_edges={[]}
             newEdgeFunction={newEdgeFunction}
             updateEdgeAmountInGraph={updateEdgeAmountInGraph}
             removeEdgeFromGraphFunction={removeEdgeFromGraphFunction}

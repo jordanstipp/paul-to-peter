@@ -136,14 +136,6 @@ export class Node {
         this.user_id = default_user_id;
         this.transactions = [];
     }
-
-    outflows() {
-        console.log('Expenses ' + this.outgoing_edges);
-    }
-
-    inflows() {
-        console.log('Incomes ' + this.outgoing_edges);
-    }
 };
 
 

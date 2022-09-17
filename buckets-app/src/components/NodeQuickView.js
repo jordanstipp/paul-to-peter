@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import React, { useState } from 'react';
 import { filterNodesByStr, filterNodesByCategory } from '../slices/graphSlice';
 import { useDispatch } from 'react-redux';
-
+import { setFocusNode } from '../slices/graphSlice';
 
 
 
@@ -119,7 +119,7 @@ const NodeViewCard = (props) => {
           </CardContent>
           <CardActions>
             <Button size="small" onClick={()=>{
-              props.handleClick(props.node);
+              props.dispatch(setFocusNode(props.node.id))
             }}>
                 Inspect Node
               </Button>
@@ -137,13 +137,14 @@ const listStyle = {
 };
 
 const NodeList = (props) => {
+    const dispatch = useDispatch()
     return (
       <List style={listStyle}>
         {
           Object.keys(props.nodes).map((key, index) => {
               const node = props.nodes[key]
               return (
-                <ListItem key={index}><NodeViewCard node={node} handleClick={props.handleClick}/></ListItem>
+                <ListItem key={index}><NodeViewCard node={node} dispatch={dispatch}/></ListItem>
               )
             })
         }
