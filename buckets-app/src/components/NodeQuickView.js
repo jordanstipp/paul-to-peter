@@ -12,6 +12,11 @@ import TextField from "@mui/material/TextField";
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useState } from 'react';
+import { filterNodesByStr, filterNodesByCategory } from '../slices/graphSlice';
+import { useDispatch } from 'react-redux';
+import { setFocusNode } from '../slices/graphSlice';
+import { useSelector } from 'react-redux';
+
 
 
 
@@ -50,7 +55,6 @@ const NewNodeForm = (props) => {
                 console.log(e.target.value)
                 setCurrentCategory(e.target.value)
               }}
-              filterNodesByCategory={props.filterNodesByCategory}
               categories={props.categories}
             />
             <div style={{display:"flex", flexDirection:"row", justifyContent: "space-between", maxHeight: "15%"}}>
@@ -117,7 +121,7 @@ const NodeViewCard = (props) => {
           </CardContent>
           <CardActions>
             <Button size="small" onClick={()=>{
-              props.handleClick(props.node);
+              props.dispatch(setFocusNode(props.node.id))
             }}>
                 Inspect Node
               </Button>
@@ -135,13 +139,14 @@ const listStyle = {
 };
 
 const NodeList = (props) => {
+    const dispatch = useDispatch()
     return (
       <List style={listStyle}>
         {
           Object.keys(props.nodes).map((key, index) => {
               const node = props.nodes[key]
               return (
-                <ListItem key={index}><NodeViewCard node={node} handleClick={props.handleClick}/></ListItem>
+                <ListItem key={index}><NodeViewCard node={node} dispatch={dispatch}/></ListItem>
               )
             })
         }
@@ -157,6 +162,7 @@ const searchStyle = {
 };
 
 const SearchBar = (props) => {
+  const dispatch = useDispatch()
   return (
     <form style={searchStyle}>
         <TextField 
@@ -164,7 +170,7 @@ const SearchBar = (props) => {
           className='text'
           onInput={(e)=>{
             console.log(e.target.value)
-            props.filterNodesByStr(e.target.value)
+            dispatch(filterNodesByStr(e.target.value))
           }}
           label="Node name"
           variant="outlined"
@@ -176,12 +182,11 @@ const SearchBar = (props) => {
         <NodeCategorySelect 
           currentCategory={props.currentCategory}
           setCategory={props.setCategory}
-          filterNodesByCategory={props.filterNodesByCategory}
           categories={props.categories}
           onChange={(e)=>{
             console.log(e.target.value)
             props.setCategory(e.target.value)
-            props.filterNodesByCategory(e.target.value)
+            dispatch(filterNodesByCategory(e.target.value))
           }}
           style={{width: "30%", minHeight: "100%"}}
         />
@@ -198,6 +203,9 @@ const quickViewStyle = {
 
 const NodeQuickView = (props) => {
   const [newNodeMode, toggleNewNodeMode] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState('All');
+  const categories = useSelector((state)=> state.graph.node_types)
+
   function toggleNodeForm(){
     toggleNewNodeMode(!newNodeMode);
   }
@@ -207,11 +215,9 @@ const NodeQuickView = (props) => {
         {newNodeMode ? <div style={{width: "60%"}}></div>:
           <SearchBar 
             allNodes={props.displayedNodes} 
-            categories={props.categories}
-            setCategory={props.setCurrentCategory}
-            currentCategory={props.currentCategory}
-            filterNodesByCategory={props.filterNodesByCategory}
-            filterNodesByStr={props.filterNodesByStr}
+            categories={categories}
+            setCategory={setCurrentCategory}
+            currentCategory={currentCategory}
             newNodeMode={newNodeMode}
           />
         }
@@ -224,10 +230,9 @@ const NodeQuickView = (props) => {
       {newNodeMode ?
         <NewNodeForm
           addNodeFunction={props.addNodeFunction}
-          currentCategory={props.currentCategory}
-          setCategory={props.setCategory}
-          filterNodesByCategory={props.filterNodesByCategory}
-          categories={props.categories}
+          currentCategory={currentCategory}
+          setCategory={setCurrentCategory}
+          categories={categories}
           toggleNodeForm={toggleNodeForm}
         /> :
         <NodeList nodes={props.displayedNodes} handleClick={props.handleClick}></NodeList>}

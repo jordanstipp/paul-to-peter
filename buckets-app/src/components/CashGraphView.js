@@ -1,5 +1,7 @@
 import { ForceGraph2D } from 'react-force-graph';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setFocusNode } from '../slices/graphSlice';
 
 
 
@@ -42,6 +44,7 @@ const graphStyle = {
   border: "1px solid black"
 }
 const CashGraphView = (props) => {
+  const dispatch = useDispatch()
 
     const data = get_force_graph_data(props.nodes, props.edges)
     console.log(props.edges)
@@ -58,7 +61,7 @@ const CashGraphView = (props) => {
         node, // lookAt ({ x, y, z })
         3000  // ms transition duration
       );
-      props.handleNodeFocusClick(node);
+      dispatch(setFocusNode(props.node.id))
     };
   
     return (

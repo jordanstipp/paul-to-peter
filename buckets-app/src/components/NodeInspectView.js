@@ -14,6 +14,8 @@ import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ListItemText from '@mui/material/ListItemText';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 
 
@@ -273,45 +275,39 @@ const BudgetViewColumnStyle = {
   width: "48%",
   marginRight: "1%"
 }
-class BudgetView extends React.Component {
-  constructor(props){
-    super(props)
-  }
-
-  render() {
-    return(
-      <div style={BudgetViewStyle}>
-        <div style={BudgetViewColumnStyle}>
-          <h3>Income</h3>
-          <BudgetList
-            edges={this.props.incoming_edges}
-            updateEdgeAmountInGraph={this.props.updateEdgeAmountInGraph}
-            removeEdgeFromGraphFunction={this.props.removeEdgeFromGraphFunction}
-            incoming={true}/>
-          <InputEdgeForm
-            node={this.props.node}
-            nodes={this.props.nodes}
-            newEdgeFunction={this.props.newEdgeFunction}
-            incoming={true}
-          />
-        </div>
-        <div style={BudgetViewColumnStyle}>
-          <h3>Expenses</h3>
-          <BudgetList
-            edges={this.props.outgoing_edges}
-            updateEdgeAmountInGraph={this.props.updateEdgeAmountInGraph}
-            removeEdgeFromGraphFunction={this.props.removeEdgeFromGraphFunction}
-            incoming={false}/>
-          <InputEdgeForm
-            node={this.props.node}
-            nodes={this.props.nodes}
-            newEdgeFunction={this.props.newEdgeFunction}
-            incoming={false}
-          />
-        </div>
+const BudgetView = (props)=> {
+  return(
+    <div style={BudgetViewStyle}>
+      <div style={BudgetViewColumnStyle}>
+        <h3>Income</h3>
+        <BudgetList
+          edges={props.incoming_edges}
+          updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+          removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
+          incoming={true}/>
+        <InputEdgeForm
+          node={props.node}
+          nodes={props.nodes}
+          newEdgeFunction={props.newEdgeFunction}
+          incoming={true}
+        />
       </div>
+      <div style={BudgetViewColumnStyle}>
+        <h3>Expenses</h3>
+        <BudgetList
+          edges={props.outgoing_edges}
+          updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+          removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
+          incoming={false}/>
+        <InputEdgeForm
+          node={props.node}
+          nodes={props.nodes}
+          newEdgeFunction={props.newEdgeFunction}
+          incoming={false}
+        />
+      </div>
+    </div>
   )
-  }
 }
 
 
@@ -350,13 +346,12 @@ const fullInfoStyle = {
   flexDirection: "column"
 };
 const FullInfoView = (props) => {
-  
   return (
     <div style={fullInfoStyle}>
       <div style={{maxHeight: "30%", marginBottom:"0", paddingBottom: 0}}>
-        <h1>{props.node.name}</h1>
+        <h1>{props.focusNode_redux.name}</h1>
         <BalanceView
-            current_balance={props.node.current_balance}
+            current_balance={props.focusNode_redux.current_balance}
             income={props.income}
             expenses={props.expenses}
         />
@@ -364,7 +359,7 @@ const FullInfoView = (props) => {
       <div style={{maxHeight: "50%"}}>
         <h2>Budget</h2>
         <BudgetView
-          node={props.node}
+          node={props.focusNode_redux}
           nodes={props.nodes}
           incoming_edges={props.incoming_edges}
           outgoing_edges={props.outgoing_edges}
@@ -408,41 +403,35 @@ const inspectComponentStyle = {
   border: "1px solid black"
 }
 
-class NodeInspectView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      versionGraph: this.props.data
-    };
-  }
-
-  render() {
-    let income = calculate_income(this.props.incoming_edges)
-    let expenses = calculate_expenses(this.props.outgoing_edges)
+const NodeInspectView = (props) => {
+    const focusNode_redux = useSelector((state)=>state.graph.focusNode)
+    // const graph_redux = useSelector((state)=>state.graph.graph)
+    const incoming_edges = useSelector((state)=>state.graph.focusIncomingEdges)
+    const outgoing_edges = useSelector((state)=>state.graph.focusOutgoingEdges)
+    let income = calculate_income(incoming_edges)
+    let expenses = calculate_expenses(outgoing_edges)
 
     return (
       <div style={inspectComponentStyle}>
-        {this.props.displayFullInfo === true ? 
+        {props.displayFullInfo === true ? 
           <FullInfoView
-            versionGraph={this.state.versionGraph}
-            node={this.props.node}
-            nodes={this.props.nodes}
-            incoming_edges={this.props.incoming_edges}
-            outgoing_edges={this.props.outgoing_edges}
-            newEdgeFunction={this.props.newEdgeFunction}
-            updateEdgeAmountInGraph={this.props.updateEdgeAmountInGraph}
-            removeEdgeFromGraphFunction={this.props.removeEdgeFromGraphFunction}
+            focusNode_redux={focusNode_redux}
+            nodes={props.nodes}
+            incoming_edges={incoming_edges}
+            outgoing_edges={outgoing_edges}
+            newEdgeFunction={props.newEdgeFunction}
+            updateEdgeAmountInGraph={props.updateEdgeAmountInGraph}
+            removeEdgeFromGraphFunction={props.removeEdgeFromGraphFunction}
             income={income}
             expenses={expenses}
           /> :
           <QuickInfoView 
-          node={this.props.node}
+          node={focusNode_redux}
           income={income}
           expenses={expenses}
           />}
       </div>
     )
-  }
 };
 
 export default NodeInspectView;
