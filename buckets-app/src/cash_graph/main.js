@@ -38,6 +38,7 @@ export class Graph {
     add_node_to_graph(name, type, current_balance){
         let node = new Node(name, type, current_balance);
         this.add_node(node);
+        console.log('new noe')
     }
 
     add_node(node) {

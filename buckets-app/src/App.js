@@ -1,9 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import complexUserGraph from './cash_graph/complex_user.js';
-import mockUserGraph from './cash_graph/mock_user.js';
-import blankGraph from './cash_graph/blank.js';
 import {getUpToDateGraph, publishGraph} from './cash_graph/main.js';
 import Button from '@mui/material/Button';
 
@@ -15,7 +12,15 @@ import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
 import { InputLabel } from '@mui/material';
-
+import { Provider, createStore } from 'react-redux'
+import store from './store'
+import { setGraph, addNode } from './slices/graphSlice';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import blankGraph from './cash_graph/blank.js';
+import complexUserGraph from './cash_graph/complex_user.js';
+import mockUserGraph from './cash_graph/mock_user.js';
+import { Node } from './cash_graph/main.js';
 
 const graphDisplayStyle = {
   display: "flex",
@@ -26,12 +31,12 @@ const GraphDisplay = (props) => {
     <div>
       <CashGraphView 
           handleNodeFocusClick={props.handleNodeFocusClick}
-          nodes={props.data.get_nodes()}
-          edges={props.data.get_edges()}
+          nodes={props.graph.get_nodes()}
+          edges={props.graph.get_edges()}
       />
       <NodeInspectView
           node={props.focusNode}
-          nodes={props.data.get_nodes()}
+          nodes={props.graph.get_nodes()}
           incoming_edges={props.incoming_edges}
           outgoing_edges={props.outgoing_edges}
           newEdgeFunction={props.newEdgeFunction}
@@ -42,9 +47,12 @@ const GraphDisplay = (props) => {
 };
 
 function App() {
-  const [data, setData] = useState({});
+  const graph = useSelector((state)=> state.graph.graph)
+  const displayedNodes_redux = useSelector((state)=>state.graph.displayed_nodes)
+  const dispatch = useDispatch()
+  // const [graph, setgraph] = useState({});
   /**
-   * Data Graph changes won't trigger a change of state re-rendering
+   * graph Graph changes won't trigger a change of state re-rendering
    * because of the function supporting it. Toggle a boolean instead
    * to trigger the sub-component refresh when necessary.
   */
@@ -57,17 +65,16 @@ function App() {
   const [displayedNodes, setDisplayedNodes] = useState({});
 
   function setStatesWithGraph(cashGraph) {
-    setData(cashGraph);
+    // dispatch(setGraph(cashGraph));
     const default_display_node_id = Object.keys(cashGraph.nodes)[0]
     setFocusNode(cashGraph.nodes[default_display_node_id]);
     setDisplayedNodes(cashGraph.nodes)
     setRefreshGraphToggle(!refreshGraphToggle);
   };
 
-  /**Loads the data from backend (which doesnt exist today) */
   useEffect(() => {
     console.log('Effect Executing');
-    setStatesWithGraph(blankGraph)
+    setStatesWithGraph(graph)
     setLoading(false);
   }, []);
 
@@ -99,12 +106,13 @@ function App() {
   function handleNodeFocusClick(node) {
     console.log(node);
     let id = node.id;
-    setFocusNode(data.get_node(id));
+    setFocusNode(graph.get_node(id));
   };
 
   /**Adds a new node to the graph */
   function addNodeFunction(name, type, current_balance){
-    data.add_node_to_graph(name, type, current_balance)
+    const node = new Node(name, type, current_balance);
+    dispatch(addNode(node))
     setUnsavedChanges(true);
   }
 
@@ -113,7 +121,7 @@ function App() {
     console.log('New edge being added from ' + sourceID + "->" + destinationID + "of amont: " + amount)
     console.log(sourceID)
     console.log(destinationID)
-    data.add_new_edge_to_graph(sourceID, destinationID, amount)
+    graph.add_new_edge_to_graph(sourceID, destinationID, amount)
     setRefreshGraphToggle(!refreshGraphToggle);
     setUnsavedChanges(true);
   }
@@ -122,28 +130,17 @@ function App() {
   function updateEdgeAmountInGraph(edge_id, amount) {
     console.log(edge_id);
     console.log(amount);
-    data.update_edge(edge_id, amount);
+    graph.update_edge(edge_id, amount);
     setRefreshGraphToggle(!refreshGraphToggle);
     setUnsavedChanges(true);
   }
 
   /**Removes an edge form the graph */
   function removeEdgeFromGraphFunction(edge_id) {
-    data.remove_edge(edge_id);
-    setData(data);
+    graph.remove_edge(edge_id);
+    dispatch(setGraph(graph));
     setRefreshGraphToggle(!refreshGraphToggle);
     setUnsavedChanges(true);
-  }
-
-  /**Filter the Nodes displayed on the screen by category. */
-  function filterNodesByCategory(category) {
-    const nodesInCategory = Object.fromEntries(Object.entries(data.nodes).filter(([key, node]) => node.type === category || category === 'All'))
-    setDisplayedNodes(nodesInCategory)
-  }
-
-  function filterNodesByStr(substr) {
-    const nodesInCategory = Object.fromEntries(Object.entries(data.nodes).filter(([key, node]) => node.name.toLowerCase().indexOf(substr.toLowerCase()) !== -1))
-    setDisplayedNodes(nodesInCategory)
   }
 
   /**Render the app. */
@@ -160,7 +157,7 @@ function App() {
               labelId="demo-simple-select-label-small"
               id="demo-simple-select-small"
               label="Available Graphs"
-              value={data.graph_id}
+              value={graph.graph_id}
               onChange={changeDisplayedGraph}
               style={{minWidth: "40%"}}
           >
@@ -174,7 +171,7 @@ function App() {
             }
       </Select>
       {(unsavedChanges) ? 
-        <Button variant="outlined" onClick={()=>SaveGraph(data)}>
+        <Button variant="outlined" onClick={()=>SaveGraph(graph)}>
           Publish Changes.
         </Button>:
         <></>
@@ -185,13 +182,11 @@ function App() {
     <div className="dev-area">
       <div className="info-side">
         <NodeQuickView
-          displayedNodes={displayedNodes}
+          displayedNodes={displayedNodes_redux}
           handleClick={handleNodeFocusClick}
-          categories={data.node_types}
+          categories={graph.node_types}
           currentCategory={currentCategory}
           setCurrentCategory={setCurrentCategory}
-          filterNodesByCategory={filterNodesByCategory}
-          filterNodesByStr={filterNodesByStr}
           addNodeFunction={addNodeFunction}
         />
       </div>
@@ -204,19 +199,19 @@ function App() {
         >Toggle Graph</Button>
         {showGraph ? 
            <GraphDisplay 
-            data={data}
+            graph={graph}
             focusNode={focusNode}
-            incoming_edges={data.get_incoming_edges(focusNode.id)}
-            outgoing_edges={data.get_outgoing_edges(focusNode.id)}
+            incoming_edges={graph.get_incoming_edges(focusNode.id)}
+            outgoing_edges={graph.get_outgoing_edges(focusNode.id)}
             newEdgeFunction={newEdgeFunction}
             handleNodeFocusClick={handleNodeFocusClick}
            />:
           <NodeInspectView
-            data={data}
+            graph={graph}
             node={focusNode}
-            nodes={data.get_nodes()}
-            incoming_edges={data.get_incoming_edges(focusNode.id)}
-            outgoing_edges={data.get_outgoing_edges(focusNode.id)}
+            nodes={graph.get_nodes()}
+            incoming_edges={graph.get_incoming_edges(focusNode.id)}
+            outgoing_edges={graph.get_outgoing_edges(focusNode.id)}
             newEdgeFunction={newEdgeFunction}
             updateEdgeAmountInGraph={updateEdgeAmountInGraph}
             removeEdgeFromGraphFunction={removeEdgeFromGraphFunction}
@@ -231,4 +226,15 @@ function App() {
   
 }
 
-export default App;
+
+class AppWrapper extends React.Component{
+  render() {
+    return (
+      <Provider store={store}>
+        <App/>
+      </Provider>
+    );
+  }
+}
+
+export default AppWrapper;

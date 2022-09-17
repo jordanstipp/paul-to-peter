@@ -12,6 +12,9 @@ import TextField from "@mui/material/TextField";
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useState } from 'react';
+import { filterNodesByStr, filterNodesByCategory } from '../slices/graphSlice';
+import { useDispatch } from 'react-redux';
+
 
 
 
@@ -50,7 +53,6 @@ const NewNodeForm = (props) => {
                 console.log(e.target.value)
                 setCurrentCategory(e.target.value)
               }}
-              filterNodesByCategory={props.filterNodesByCategory}
               categories={props.categories}
             />
             <div style={{display:"flex", flexDirection:"row", justifyContent: "space-between", maxHeight: "15%"}}>
@@ -157,6 +159,7 @@ const searchStyle = {
 };
 
 const SearchBar = (props) => {
+  const dispatch = useDispatch()
   return (
     <form style={searchStyle}>
         <TextField 
@@ -164,7 +167,7 @@ const SearchBar = (props) => {
           className='text'
           onInput={(e)=>{
             console.log(e.target.value)
-            props.filterNodesByStr(e.target.value)
+            dispatch(filterNodesByStr(e.target.value))
           }}
           label="Node name"
           variant="outlined"
@@ -176,12 +179,11 @@ const SearchBar = (props) => {
         <NodeCategorySelect 
           currentCategory={props.currentCategory}
           setCategory={props.setCategory}
-          filterNodesByCategory={props.filterNodesByCategory}
           categories={props.categories}
           onChange={(e)=>{
             console.log(e.target.value)
             props.setCategory(e.target.value)
-            props.filterNodesByCategory(e.target.value)
+            dispatch(filterNodesByCategory(e.target.value))
           }}
           style={{width: "30%", minHeight: "100%"}}
         />
@@ -210,8 +212,6 @@ const NodeQuickView = (props) => {
             categories={props.categories}
             setCategory={props.setCurrentCategory}
             currentCategory={props.currentCategory}
-            filterNodesByCategory={props.filterNodesByCategory}
-            filterNodesByStr={props.filterNodesByStr}
             newNodeMode={newNodeMode}
           />
         }
@@ -226,7 +226,6 @@ const NodeQuickView = (props) => {
           addNodeFunction={props.addNodeFunction}
           currentCategory={props.currentCategory}
           setCategory={props.setCategory}
-          filterNodesByCategory={props.filterNodesByCategory}
           categories={props.categories}
           toggleNodeForm={toggleNodeForm}
         /> :
