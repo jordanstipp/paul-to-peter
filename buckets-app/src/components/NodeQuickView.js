@@ -15,6 +15,8 @@ import React, { useState } from 'react';
 import { filterNodesByStr, filterNodesByCategory } from '../slices/graphSlice';
 import { useDispatch } from 'react-redux';
 import { setFocusNode } from '../slices/graphSlice';
+import { useSelector } from 'react-redux';
+
 
 
 
@@ -201,6 +203,9 @@ const quickViewStyle = {
 
 const NodeQuickView = (props) => {
   const [newNodeMode, toggleNewNodeMode] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState('All');
+  const categories = useSelector((state)=> state.graph.node_types)
+
   function toggleNodeForm(){
     toggleNewNodeMode(!newNodeMode);
   }
@@ -210,9 +215,9 @@ const NodeQuickView = (props) => {
         {newNodeMode ? <div style={{width: "60%"}}></div>:
           <SearchBar 
             allNodes={props.displayedNodes} 
-            categories={props.categories}
-            setCategory={props.setCurrentCategory}
-            currentCategory={props.currentCategory}
+            categories={categories}
+            setCategory={setCurrentCategory}
+            currentCategory={currentCategory}
             newNodeMode={newNodeMode}
           />
         }
@@ -225,9 +230,9 @@ const NodeQuickView = (props) => {
       {newNodeMode ?
         <NewNodeForm
           addNodeFunction={props.addNodeFunction}
-          currentCategory={props.currentCategory}
-          setCategory={props.setCategory}
-          categories={props.categories}
+          currentCategory={currentCategory}
+          setCategory={setCurrentCategory}
+          categories={categories}
           toggleNodeForm={toggleNodeForm}
         /> :
         <NodeList nodes={props.displayedNodes} handleClick={props.handleClick}></NodeList>}
